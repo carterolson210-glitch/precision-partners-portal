@@ -1,96 +1,67 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
-
 @layer base {
   :root {
+    /* Brand Core */
+    --navy: 216 60% 10%;
+    --steel: 216 15% 61%;
+    --gold: 43 52% 54%;
+    --body-text: 0 0% 7%;
+    --body-text-light: 0 0% 96%;
+    --caption: 0 0% 47%;
+    --description: 0 0% 33%;
+    --section-alt: 0 0% 97%;
+    --card-border: 0 0% 88%;
+    --gold-text: 0 0% 10%;
+    --destructive-color: 0 100% 40%;
+
+    /* Semantic Tokens */
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-
+    --foreground: 0 0% 7%;
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-
+    --card-foreground: 0 0% 7%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 0 0% 7%;
+    --primary: 216 60% 10%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 216 15% 61%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 97%;
+    --muted-foreground: 0 0% 47%;
+    --accent: 43 52% 54%;
+    --accent-foreground: 0 0% 10%;
+    --destructive: 0 100% 40%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 88%;
+    --input: 0 0% 88%;
+    --ring: 43 52% 54%;
+    --radius: 0.75rem;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Sidebar */
+    --sidebar-background: 216 60% 10%;
+    --sidebar-foreground: 0 0% 96%;
+    --sidebar-primary: 43 52% 54%;
+    --sidebar-primary-foreground: 0 0% 10%;
+    --sidebar-accent: 216 50% 15%;
+    --sidebar-accent-foreground: 0 0% 96%;
+    --sidebar-border: 216 40% 18%;
+    --sidebar-ring: 43 52% 54%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Typography */
+    --font-body: 'Inter', sans-serif;
+    --font-display: 'Playfair Display', serif;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-
-    --radius: 0.5rem;
-
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Spacing */
+    --section-gap: 64px;
+    --card-gap: 16px;
+    --card-padding: 24px;
+    --card-title-gap: 12px;
+    --form-field-gap: 20px;
+    --nav-height: 64px;
   }
 }
 
@@ -99,7 +70,95 @@ All colors MUST be HSL.
     @apply border-border;
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.7;
+    color: hsl(var(--body-text));
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    letter-spacing: 0.02em;
+    color: hsl(var(--body-text));
+    line-height: 1.2;
+  }
+
+  p {
+    line-height: 1.7;
+  }
+}
+
+@layer components {
+  .section-padding {
+    padding-top: var(--section-gap);
+    padding-bottom: var(--section-gap);
+  }
+
+  .section-alt {
+    background-color: hsl(var(--section-alt));
+  }
+
+  .gold-underline {
+    position: relative;
+    display: inline-block;
+  }
+  .gold-underline::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background-color: hsl(var(--gold));
+    border-radius: 2px;
+  }
+
+  .section-heading {
+    font-size: 36px;
+    font-weight: 700;
+    color: hsl(var(--body-text));
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  .dashboard-heading {
+    font-size: 20px;
+    font-weight: 600;
+    color: hsl(var(--body-text));
+    border-left: 2px solid hsl(var(--gold));
+    padding-left: 12px;
+  }
+
+  .card-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: hsl(var(--body-text));
+  }
+
+  .caption-text {
+    font-size: 13px;
+    font-weight: 400;
+    color: hsl(var(--caption));
+  }
+
+  .description-text {
+    font-size: 16px;
+    color: hsl(var(--description));
+  }
+
+  .stat-number {
+    font-size: 48px;
+    font-weight: 700;
+    color: hsl(var(--gold));
+    font-family: var(--font-display);
   }
 }
