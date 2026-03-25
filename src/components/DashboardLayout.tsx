@@ -1,5 +1,6 @@
 import { ReactNode, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 import {
   LayoutDashboard, Calculator, Wrench, Calendar, ClipboardList,
   FolderOpen, DollarSign, FileText, BookOpen, Users, BarChart3,
