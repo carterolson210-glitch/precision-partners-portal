@@ -29,6 +29,15 @@ interface DashboardLayoutProps {
 const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/");
+  };
+
+  const userInitial = user?.user_metadata?.full_name?.[0] || user?.email?.[0]?.toUpperCase() || "?";
 
   return (
     <div className="min-h-screen bg-section-alt">
