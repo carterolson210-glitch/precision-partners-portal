@@ -115,9 +115,10 @@ const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
           })}
         </nav>
         <div className="p-4 mt-auto border-t border-card-border">
-          <Link to="/" className="flex items-center gap-3 px-3 py-2.5 text-[14px] text-caption hover:text-destructive transition-colors">
+          <button onClick={handleLogout} className="flex items-center gap-3 px-3 py-2.5 text-[14px] text-caption hover:text-destructive transition-colors w-full">
             <LogOut className="w-[18px] h-[18px]" />
             Log Out
+          </button>
           </Link>
         </div>
       </aside>
