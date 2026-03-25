@@ -1,5 +1,6 @@
 import { ReactNode, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 import {
   LayoutDashboard, Calculator, Wrench, Calendar, ClipboardList,
   FolderOpen, DollarSign, FileText, BookOpen, Users, BarChart3,
@@ -28,6 +29,15 @@ interface DashboardLayoutProps {
 const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/");
+  };
+
+  const userInitial = user?.user_metadata?.full_name?.[0] || user?.email?.[0]?.toUpperCase() || "?";
 
   return (
     <div className="min-h-screen bg-section-alt">
@@ -60,7 +70,7 @@ const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
             </button>
             <div className="flex items-center gap-2 cursor-pointer">
               <div className="w-8 h-8 bg-navy/10 rounded-full flex items-center justify-center">
-                <span className="text-navy text-[13px] font-semibold">?</span>
+                <span className="text-navy text-[13px] font-semibold">{userInitial}</span>
               </div>
               <ChevronDown className="w-4 h-4 text-caption hidden sm:block" />
             </div>
@@ -105,10 +115,10 @@ const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
           })}
         </nav>
         <div className="p-4 mt-auto border-t border-card-border">
-          <Link to="/" className="flex items-center gap-3 px-3 py-2.5 text-[14px] text-caption hover:text-destructive transition-colors">
+          <button onClick={handleLogout} className="flex items-center gap-3 px-3 py-2.5 text-[14px] text-caption hover:text-destructive transition-colors w-full">
             <LogOut className="w-[18px] h-[18px]" />
             Log Out
-          </Link>
+          </button>
         </div>
       </aside>
 
