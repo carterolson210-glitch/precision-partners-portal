@@ -119,7 +119,6 @@ const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
             <LogOut className="w-[18px] h-[18px]" />
             Log Out
           </button>
-          </Link>
         </div>
       </aside>
 
