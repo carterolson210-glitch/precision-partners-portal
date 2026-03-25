@@ -70,7 +70,7 @@ const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
             </button>
             <div className="flex items-center gap-2 cursor-pointer">
               <div className="w-8 h-8 bg-navy/10 rounded-full flex items-center justify-center">
-                <span className="text-navy text-[13px] font-semibold">?</span>
+                <span className="text-navy text-[13px] font-semibold">{userInitial}</span>
               </div>
               <ChevronDown className="w-4 h-4 text-caption hidden sm:block" />
             </div>
