@@ -51,6 +51,7 @@ const Register = () => {
           team_size: teamSize,
           country,
           provider: "email",
+          ...(source ? { source } : {}),
         },
       },
     });
