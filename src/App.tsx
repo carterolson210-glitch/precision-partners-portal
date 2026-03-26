@@ -19,6 +19,7 @@ import Proposals from "./pages/Proposals";
 import CodeLibrary from "./pages/CodeLibrary";
 import TeamWorkspace from "./pages/TeamWorkspace";
 import Analytics from "./pages/Analytics";
+import FreeEstimator from "./pages/FreeEstimator";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
