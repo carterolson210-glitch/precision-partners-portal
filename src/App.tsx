@@ -20,6 +20,7 @@ import CodeLibrary from "./pages/CodeLibrary";
 import TeamWorkspace from "./pages/TeamWorkspace";
 import Analytics from "./pages/Analytics";
 import FreeEstimator from "./pages/FreeEstimator";
+import Referrals from "./pages/Referrals";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -58,6 +59,7 @@ const App = () => (
             <Route path="/dashboard/codes" element={<ProtectedRoute><CodeLibrary /></ProtectedRoute>} />
             <Route path="/dashboard/team" element={<ProtectedRoute><TeamWorkspace /></ProtectedRoute>} />
             <Route path="/dashboard/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
+            <Route path="/dashboard/referrals" element={<ProtectedRoute><Referrals /></ProtectedRoute>} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>
