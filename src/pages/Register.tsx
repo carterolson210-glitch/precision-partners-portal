@@ -26,6 +26,7 @@ const Register = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const source = searchParams.get("source");
+  const referrerId = searchParams.get("ref");
 
   const checks = [
     { label: "At least 8 characters", met: password.length >= 8 },
