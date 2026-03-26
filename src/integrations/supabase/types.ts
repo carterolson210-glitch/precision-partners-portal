@@ -47,6 +47,54 @@ export type Database = {
         }
         Relationships: []
       }
+      referrals: {
+        Row: {
+          conversion_date: string | null
+          created_at: string | null
+          credit_applied: boolean | null
+          id: string
+          referred_email: string | null
+          referred_id: string | null
+          referrer_id: string
+          signup_date: string | null
+        }
+        Insert: {
+          conversion_date?: string | null
+          created_at?: string | null
+          credit_applied?: boolean | null
+          id?: string
+          referred_email?: string | null
+          referred_id?: string | null
+          referrer_id: string
+          signup_date?: string | null
+        }
+        Update: {
+          conversion_date?: string | null
+          created_at?: string | null
+          credit_applied?: boolean | null
+          id?: string
+          referred_email?: string | null
+          referred_id?: string | null
+          referrer_id?: string
+          signup_date?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referrals_referred_id_fkey"
+            columns: ["referred_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referrals_referrer_id_fkey"
+            columns: ["referrer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
