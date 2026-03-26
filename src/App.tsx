@@ -19,6 +19,7 @@ import Proposals from "./pages/Proposals";
 import CodeLibrary from "./pages/CodeLibrary";
 import TeamWorkspace from "./pages/TeamWorkspace";
 import Analytics from "./pages/Analytics";
+import FreeEstimator from "./pages/FreeEstimator";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -43,6 +44,7 @@ const App = () => (
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/free-estimator" element={<FreeEstimator />} />
 
             {/* Dashboard (protected) */}
             <Route path="/dashboard" element={<ProtectedRoute><DashboardHome /></ProtectedRoute>} />

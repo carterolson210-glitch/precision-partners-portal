@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Eye, EyeOff, Check, X } from "lucide-react";
@@ -24,6 +24,8 @@ const Register = () => {
   const [country, setCountry] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const source = searchParams.get("source");
 
   const checks = [
     { label: "At least 8 characters", met: password.length >= 8 },
@@ -49,6 +51,7 @@ const Register = () => {
           team_size: teamSize,
           country,
           provider: "email",
+          ...(source ? { source } : {}),
         },
       },
     });
