@@ -24,6 +24,8 @@ const Register = () => {
   const [country, setCountry] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const source = searchParams.get("source");
 
   const checks = [
     { label: "At least 8 characters", met: password.length >= 8 },
