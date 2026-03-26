@@ -40,7 +40,7 @@ const Register = () => {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
+    const { data: signUpData, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -53,6 +53,7 @@ const Register = () => {
           country,
           provider: "email",
           ...(source ? { source } : {}),
+          ...(referrerId ? { referrer_id: referrerId } : {}),
         },
       },
     });
@@ -60,6 +61,14 @@ const Register = () => {
     if (error) {
       toast.error(error.message);
     } else {
+      // Create referral record if user came via referral link
+      if (referrerId && signUpData?.user?.id) {
+        await supabase.from("referrals").insert({
+          referrer_id: referrerId,
+          referred_id: signUpData.user.id,
+          referred_email: email,
+        } as any);
+      }
       toast.success("Check your email for a verification link to complete your registration.");
       navigate("/login");
     }
