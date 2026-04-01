@@ -49,6 +49,8 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/free-estimator" element={<FreeEstimator />} />
+            <Route path="/templates" element={<Templates />} />
+            <Route path="/templates/:slug" element={<TemplateDetail />} />
 
             {/* Dashboard (protected) */}
             <Route path="/dashboard" element={<ProtectedRoute><DashboardHome /></ProtectedRoute>} />
