@@ -21,6 +21,9 @@ import TeamWorkspace from "./pages/TeamWorkspace";
 import Analytics from "./pages/Analytics";
 import FreeEstimator from "./pages/FreeEstimator";
 import Referrals from "./pages/Referrals";
+import Templates from "./pages/Templates";
+import TemplateDetail from "./pages/TemplateDetail";
+import Downloads from "./pages/Downloads";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -46,6 +49,8 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/free-estimator" element={<FreeEstimator />} />
+            <Route path="/templates" element={<Templates />} />
+            <Route path="/templates/:slug" element={<TemplateDetail />} />
 
             {/* Dashboard (protected) */}
             <Route path="/dashboard" element={<ProtectedRoute><DashboardHome /></ProtectedRoute>} />
@@ -60,6 +65,7 @@ const App = () => (
             <Route path="/dashboard/team" element={<ProtectedRoute><TeamWorkspace /></ProtectedRoute>} />
             <Route path="/dashboard/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
             <Route path="/dashboard/referrals" element={<ProtectedRoute><Referrals /></ProtectedRoute>} />
+            <Route path="/dashboard/downloads" element={<ProtectedRoute><Downloads /></ProtectedRoute>} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>
