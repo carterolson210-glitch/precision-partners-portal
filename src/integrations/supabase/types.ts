@@ -95,6 +95,51 @@ export type Database = {
           },
         ]
       }
+      template_purchases: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          currency: string
+          download_expires_at: string | null
+          download_url: string | null
+          id: string
+          status: string
+          stripe_payment_intent_id: string | null
+          stripe_session_id: string | null
+          template_name: string
+          template_slug: string
+          user_id: string
+        }
+        Insert: {
+          amount_cents: number
+          created_at?: string
+          currency?: string
+          download_expires_at?: string | null
+          download_url?: string | null
+          id?: string
+          status?: string
+          stripe_payment_intent_id?: string | null
+          stripe_session_id?: string | null
+          template_name: string
+          template_slug: string
+          user_id: string
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          currency?: string
+          download_expires_at?: string | null
+          download_url?: string | null
+          id?: string
+          status?: string
+          stripe_payment_intent_id?: string | null
+          stripe_session_id?: string | null
+          template_name?: string
+          template_slug?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
