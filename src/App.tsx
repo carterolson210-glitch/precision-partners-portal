@@ -21,6 +21,9 @@ import TeamWorkspace from "./pages/TeamWorkspace";
 import Analytics from "./pages/Analytics";
 import FreeEstimator from "./pages/FreeEstimator";
 import Referrals from "./pages/Referrals";
+import Templates from "./pages/Templates";
+import TemplateDetail from "./pages/TemplateDetail";
+import Downloads from "./pages/Downloads";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
