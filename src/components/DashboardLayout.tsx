@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import {
   LayoutDashboard, Calculator, Wrench, Calendar, ClipboardList,
   FolderOpen, DollarSign, FileText, BookOpen, Users, BarChart3,
-  Menu, X, ChevronDown, LogOut, Settings, Bell, Gift, Download, Bot,
+  Menu, X, ChevronDown, LogOut, Settings, Bell, Gift, Download, Bot, Stamp,
 } from "lucide-react";
 
 const sidebarItems = [
@@ -22,6 +22,7 @@ const sidebarItems = [
   { label: "Referrals", icon: Gift, path: "/dashboard/referrals" },
   { label: "Downloads", icon: Download, path: "/dashboard/downloads" },
   { label: "Engineering Copilot", icon: Bot, path: "/dashboard/copilot" },
+  { label: "PE Stamp & Seal", icon: Stamp, path: "/dashboard/pe-stamps" },
 ];
 
 interface DashboardLayoutProps {
