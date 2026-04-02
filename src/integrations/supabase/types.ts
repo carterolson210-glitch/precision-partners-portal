@@ -73,6 +73,48 @@ export type Database = {
         }
         Relationships: []
       }
+      pe_stamps: {
+        Row: {
+          created_at: string
+          discipline: string
+          expiration_date: string
+          id: string
+          is_default: boolean
+          label: string
+          license_number: string
+          stamp_file_path: string
+          state: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          discipline: string
+          expiration_date: string
+          id?: string
+          is_default?: boolean
+          label?: string
+          license_number: string
+          stamp_file_path: string
+          state: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          discipline?: string
+          expiration_date?: string
+          id?: string
+          is_default?: boolean
+          label?: string
+          license_number?: string
+          stamp_file_path?: string
+          state?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
