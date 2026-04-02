@@ -25,6 +25,7 @@ import Templates from "./pages/Templates";
 import TemplateDetail from "./pages/TemplateDetail";
 import Downloads from "./pages/Downloads";
 import EngineeringCopilot from "./pages/EngineeringCopilot";
+import PEStampManager from "./pages/PEStampManager";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
