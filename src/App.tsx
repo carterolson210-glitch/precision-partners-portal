@@ -24,6 +24,7 @@ import Referrals from "./pages/Referrals";
 import Templates from "./pages/Templates";
 import TemplateDetail from "./pages/TemplateDetail";
 import Downloads from "./pages/Downloads";
+import EngineeringCopilot from "./pages/EngineeringCopilot";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -66,6 +67,7 @@ const App = () => (
             <Route path="/dashboard/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
             <Route path="/dashboard/referrals" element={<ProtectedRoute><Referrals /></ProtectedRoute>} />
             <Route path="/dashboard/downloads" element={<ProtectedRoute><Downloads /></ProtectedRoute>} />
+            <Route path="/dashboard/copilot" element={<ProtectedRoute><EngineeringCopilot /></ProtectedRoute>} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>
