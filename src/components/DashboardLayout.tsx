@@ -21,6 +21,7 @@ const sidebarItems = [
   { label: "Analytics", icon: BarChart3, path: "/dashboard/analytics" },
   { label: "Referrals", icon: Gift, path: "/dashboard/referrals" },
   { label: "Downloads", icon: Download, path: "/dashboard/downloads" },
+  { label: "Engineering Copilot", icon: Bot, path: "/dashboard/copilot" },
 ];
 
 interface DashboardLayoutProps {
