@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import {
-  Stamp, Upload, Trash2, Edit2, Star, ShieldCheck, AlertTriangle, Lock, Plus, Eye,
+  Stamp, Upload, Trash2, Edit2, Star, ShieldCheck, Plus, Eye,
 } from "lucide-react";
 
 const US_STATES = [

@@ -22,6 +22,7 @@ const sidebarItems = [
   { label: "Referrals", icon: Gift, path: "/dashboard/referrals" },
   { label: "Downloads", icon: Download, path: "/dashboard/downloads" },
   { label: "Engineering Copilot", icon: Bot, path: "/dashboard/copilot" },
+  { label: "PE Stamp & Seal", icon: Stamp, path: "/dashboard/pe-stamps" },
 ];
 
 interface DashboardLayoutProps {
