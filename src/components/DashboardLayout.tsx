@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import {
   LayoutDashboard, Calculator, Wrench, Calendar, ClipboardList,
   FolderOpen, DollarSign, FileText, BookOpen, Users, BarChart3,
-  Menu, X, ChevronDown, LogOut, Settings, Bell, Gift, Download, Bot,
+  Menu, X, ChevronDown, LogOut, Settings, Bell, Gift, Download, Bot, Stamp,
 } from "lucide-react";
 
 const sidebarItems = [
