@@ -369,6 +369,7 @@ const PEStampManager = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      </FeatureGate>
     </DashboardLayout>
   );
 };
