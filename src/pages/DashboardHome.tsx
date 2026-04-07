@@ -2,12 +2,16 @@ import DashboardLayout from "@/components/DashboardLayout";
 import DashboardCard from "@/components/DashboardCard";
 import EmptyState from "@/components/EmptyState";
 import LicenseExpirationBanner from "@/components/LicenseExpirationBanner";
+import SubscriptionBadge from "@/components/SubscriptionBadge";
 import { BarChart3, Calendar, ClipboardList, DollarSign, FolderOpen, Users } from "lucide-react";
 
 const DashboardHome = () => {
   return (
     <DashboardLayout title="Dashboard">
       <LicenseExpirationBanner />
+      <div className="mb-[var(--card-gap)]">
+        <SubscriptionBadge />
+      </div>
       {/* Quick Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[var(--card-gap)] mb-[var(--card-gap)]">
         {[
