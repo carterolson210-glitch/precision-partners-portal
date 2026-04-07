@@ -149,12 +149,10 @@ const LockedPreview = () => (
 
 /* ───── main component ───── */
 const EngineeringCopilot = () => {
-  const { user } = useAuth();
+  const { user, subscription } = useAuth();
   const { toast } = useToast();
 
-  // For now, all authenticated users get access (tier gating placeholder)
-  // In production, check subscription tier from a subscriptions table
-  const [hasAccess] = useState(true);
+  const hasAccess = subscription.tierLevel >= 2;
 
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConvId, setActiveConvId] = useState<string | null>(null);

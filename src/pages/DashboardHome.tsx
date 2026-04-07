@@ -1,13 +1,31 @@
+import { useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
 import DashboardCard from "@/components/DashboardCard";
 import EmptyState from "@/components/EmptyState";
 import LicenseExpirationBanner from "@/components/LicenseExpirationBanner";
+import SubscriptionBadge from "@/components/SubscriptionBadge";
 import { BarChart3, Calendar, ClipboardList, DollarSign, FolderOpen, Users } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 
 const DashboardHome = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { refreshSubscription } = useAuth();
+
+  useEffect(() => {
+    if (searchParams.get("checkout") === "success") {
+      toast.success("Payment successful! Your subscription is now active.");
+      refreshSubscription();
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, refreshSubscription, setSearchParams]);
   return (
     <DashboardLayout title="Dashboard">
       <LicenseExpirationBanner />
+      <div className="mb-[var(--card-gap)]">
+        <SubscriptionBadge />
+      </div>
       {/* Quick Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[var(--card-gap)] mb-[var(--card-gap)]">
         {[

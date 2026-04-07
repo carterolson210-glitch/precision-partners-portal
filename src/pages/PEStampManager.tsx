@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
+import FeatureGate from "@/components/FeatureGate";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -187,6 +188,7 @@ const PEStampManager = () => {
 
   return (
     <DashboardLayout title="PE Stamp & Seal">
+      <FeatureGate requiredTier={2} featureName="PE Stamp & Seal Manager">
       {/* Disclaimer */}
       <Alert className="mb-6 border-amber-200 bg-amber-50">
         <ShieldCheck className="h-4 w-4 text-amber-600" />
@@ -367,6 +369,7 @@ const PEStampManager = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      </FeatureGate>
     </DashboardLayout>
   );
 };
