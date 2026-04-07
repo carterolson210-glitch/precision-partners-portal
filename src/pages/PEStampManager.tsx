@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
+import FeatureGate from "@/components/FeatureGate";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
