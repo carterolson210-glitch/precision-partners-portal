@@ -188,6 +188,7 @@ const PEStampManager = () => {
 
   return (
     <DashboardLayout title="PE Stamp & Seal">
+      <FeatureGate requiredTier={2} featureName="PE Stamp & Seal Manager">
       {/* Disclaimer */}
       <Alert className="mb-6 border-amber-200 bg-amber-50">
         <ShieldCheck className="h-4 w-4 text-amber-600" />
