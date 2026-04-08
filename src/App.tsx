@@ -26,6 +26,8 @@ import TemplateDetail from "./pages/TemplateDetail";
 import Downloads from "./pages/Downloads";
 import EngineeringCopilot from "./pages/EngineeringCopilot";
 import PEStampManager from "./pages/PEStampManager";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -51,6 +53,8 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/free-estimator" element={<FreeEstimator />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/templates" element={<Templates />} />
             <Route path="/templates/:slug" element={<TemplateDetail />} />
 

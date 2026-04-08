@@ -38,7 +38,7 @@ const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
 
   const handleLogout = async () => {
     await signOut();
-    navigate("/");
+    navigate("/login");
   };
 
   const userInitial = user?.user_metadata?.full_name?.[0] || user?.email?.[0]?.toUpperCase() || "?";
