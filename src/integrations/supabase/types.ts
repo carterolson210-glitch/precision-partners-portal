@@ -73,6 +73,96 @@ export type Database = {
         }
         Relationships: []
       }
+      appointments: {
+        Row: {
+          client_email: string
+          client_name: string
+          consultation_type: string
+          created_at: string
+          end_time: string
+          engineer_id: string
+          id: string
+          notes: string | null
+          reminder_24h_sent: boolean
+          reminder_48h_sent: boolean
+          scheduled_date: string
+          start_time: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          client_email: string
+          client_name: string
+          consultation_type?: string
+          created_at?: string
+          end_time: string
+          engineer_id: string
+          id?: string
+          notes?: string | null
+          reminder_24h_sent?: boolean
+          reminder_48h_sent?: boolean
+          scheduled_date: string
+          start_time: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          client_email?: string
+          client_name?: string
+          consultation_type?: string
+          created_at?: string
+          end_time?: string
+          engineer_id?: string
+          id?: string
+          notes?: string | null
+          reminder_24h_sent?: boolean
+          reminder_48h_sent?: boolean
+          scheduled_date?: string
+          start_time?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      availability_slots: {
+        Row: {
+          consultation_type: string
+          created_at: string
+          day_of_week: number
+          duration_minutes: number
+          end_time: string
+          id: string
+          is_active: boolean
+          start_time: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          consultation_type?: string
+          created_at?: string
+          day_of_week: number
+          duration_minutes?: number
+          end_time: string
+          id?: string
+          is_active?: boolean
+          start_time: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          consultation_type?: string
+          created_at?: string
+          day_of_week?: number
+          duration_minutes?: number
+          end_time?: string
+          id?: string
+          is_active?: boolean
+          start_time?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       pe_stamps: {
         Row: {
           created_at: string
