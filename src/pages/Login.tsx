@@ -98,7 +98,7 @@ const Login = () => {
                 <input type="checkbox" className="rounded" />
                 Remember me
               </label>
-              <a href="#" className="text-[14px] text-gold hover:underline">Forgot password?</a>
+              <Link to="/forgot-password" className="text-[14px] text-gold hover:underline">Forgot password?</Link>
             </div>
             <Button variant="default" size="lg" type="submit" className="w-full" disabled={loading}>
               {loading ? "Signing in…" : "Sign In"}
