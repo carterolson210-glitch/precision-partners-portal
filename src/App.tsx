@@ -28,6 +28,7 @@ import EngineeringCopilot from "./pages/EngineeringCopilot";
 import PEStampManager from "./pages/PEStampManager";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import SignDocument from "./pages/SignDocument";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
