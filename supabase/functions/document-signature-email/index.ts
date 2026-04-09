@@ -40,7 +40,7 @@ Deno.serve(async (req) => {
         .limit(1)
         .single();
 
-      const signingUrl = `${supabaseUrl.replace('.supabase.co', '.supabase.co').replace('/rest/v1', '')}/functions/v1/document-signature-email?info=1`;
+      
       // Build a proper signing page URL using the project's frontend
       const frontendUrl = Deno.env.get("FRONTEND_URL") || "https://simpli-engineering.lovable.app";
       const signLink = `${frontendUrl}/sign?token=${sig?.signing_token}`;
