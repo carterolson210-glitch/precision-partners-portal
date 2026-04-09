@@ -27,13 +27,6 @@ interface DocumentRow {
   created_at: string;
 }
 
-interface SignatureRow {
-  id: string;
-  signer_email: string;
-  signer_name: string;
-  status: string;
-  signed_at: string | null;
-}
 
 const formatSize = (bytes: number) => {
   if (bytes < 1024) return `${bytes} B`;

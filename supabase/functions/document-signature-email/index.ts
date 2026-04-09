@@ -26,7 +26,7 @@ Deno.serve(async (req) => {
 
     // Get uploader profile
     const { data: profile } = await supabase.from("profiles").select("full_name, email").eq("id", doc.uploaded_by).single();
-    const uploaderName = profile?.full_name || "The document owner";
+    const _uploaderName = profile?.full_name || "The document owner";
     const uploaderEmail = profile?.email || "";
 
     if (action === "request") {
