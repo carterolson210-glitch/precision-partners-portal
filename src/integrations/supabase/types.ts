@@ -374,8 +374,12 @@ export type Database = {
           avatar_url: string | null
           created_at: string | null
           email: string | null
+          firm_address: string | null
+          firm_name: string | null
+          firm_phone: string | null
           full_name: string | null
           id: string
+          logo_url: string | null
           provider: string | null
           source: string | null
           updated_at: string | null
@@ -384,8 +388,12 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string | null
           email?: string | null
+          firm_address?: string | null
+          firm_name?: string | null
+          firm_phone?: string | null
           full_name?: string | null
           id: string
+          logo_url?: string | null
           provider?: string | null
           source?: string | null
           updated_at?: string | null
@@ -394,11 +402,69 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string | null
           email?: string | null
+          firm_address?: string | null
+          firm_name?: string | null
+          firm_phone?: string | null
           full_name?: string | null
           id?: string
+          logo_url?: string | null
           provider?: string | null
           source?: string | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      proposals: {
+        Row: {
+          client_email: string
+          client_name: string
+          created_at: string
+          firm_address: string
+          firm_email: string
+          firm_name: string
+          firm_phone: string
+          id: string
+          logo_url: string | null
+          notes: string | null
+          sections: Json
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          client_email?: string
+          client_name?: string
+          created_at?: string
+          firm_address?: string
+          firm_email?: string
+          firm_name?: string
+          firm_phone?: string
+          id?: string
+          logo_url?: string | null
+          notes?: string | null
+          sections?: Json
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          client_email?: string
+          client_name?: string
+          created_at?: string
+          firm_address?: string
+          firm_email?: string
+          firm_name?: string
+          firm_phone?: string
+          id?: string
+          logo_url?: string | null
+          notes?: string | null
+          sections?: Json
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
