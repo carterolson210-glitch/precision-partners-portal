@@ -163,6 +163,95 @@ export type Database = {
         }
         Relationships: []
       }
+      document_signatures: {
+        Row: {
+          created_at: string
+          document_id: string
+          id: string
+          ip_address: string | null
+          signed_at: string | null
+          signer_email: string
+          signer_name: string
+          signing_token: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          document_id: string
+          id?: string
+          ip_address?: string | null
+          signed_at?: string | null
+          signer_email: string
+          signer_name: string
+          signing_token?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          document_id?: string
+          id?: string
+          ip_address?: string | null
+          signed_at?: string | null
+          signer_email?: string
+          signer_name?: string
+          signing_token?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_signatures_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      documents: {
+        Row: {
+          category: string
+          created_at: string
+          file_name: string
+          file_size: number
+          file_type: string
+          id: string
+          project_id: string | null
+          signature_status: string
+          storage_path: string
+          updated_at: string
+          uploaded_by: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          file_name: string
+          file_size: number
+          file_type: string
+          id?: string
+          project_id?: string | null
+          signature_status?: string
+          storage_path: string
+          updated_at?: string
+          uploaded_by: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          file_name?: string
+          file_size?: number
+          file_type?: string
+          id?: string
+          project_id?: string | null
+          signature_status?: string
+          storage_path?: string
+          updated_at?: string
+          uploaded_by?: string
+        }
+        Relationships: []
+      }
       pe_stamps: {
         Row: {
           created_at: string
