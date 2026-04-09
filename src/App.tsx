@@ -56,6 +56,7 @@ const App = () => (
             <Route path="/free-estimator" element={<FreeEstimator />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/sign" element={<SignDocument />} />
             <Route path="/templates" element={<Templates />} />
             <Route path="/templates/:slug" element={<TemplateDetail />} />
 
