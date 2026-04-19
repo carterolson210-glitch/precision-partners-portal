@@ -9,7 +9,6 @@
     },
     "skipLibCheck": true,
     "strictNullChecks": false,
-    "composite": true,
     "tsBuildInfoFile": "./node_modules/.cache/tsconfig.app.tsbuildinfo",
     "target": "ESNext",
     "useDefineForClassFields": true,
@@ -29,6 +28,5 @@
   "references": [
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" }
-  ],
-  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.d.ts"]
+  ]
 }
