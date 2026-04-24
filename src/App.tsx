@@ -27,9 +27,10 @@ import Downloads from "./pages/Downloads";
 import EngineeringCopilot from "./pages/EngineeringCopilot";
 import PEStampManager from "./pages/PEStampManager";
 import ForgotPassword from "./pages/ForgotPassword";
+import NotFound from "./pages/NotFound";
 import ResetPassword from "./pages/ResetPassword";
 import SignDocument from "./pages/SignDocument";
-import NotFound from "./pages/NotFound";
+
 
 const queryClient = new QueryClient();
 
@@ -75,6 +76,8 @@ const App = () => (
             <Route path="/dashboard/referrals" element={<ProtectedRoute><Referrals /></ProtectedRoute>} />
             <Route path="/dashboard/downloads" element={<ProtectedRoute><Downloads /></ProtectedRoute>} />
             <Route path="/dashboard/copilot" element={<ProtectedRoute><EngineeringCopilot /></ProtectedRoute>} />
+            <Route path="/auth/callback" element={<AuthCallback />} />  {/* ADD THIS */}
+            <Route path="*" element={<NotFound />} />
             <Route path="/dashboard/pe-stamps" element={<ProtectedRoute><PEStampManager /></ProtectedRoute>} />
 
             <Route path="*" element={<NotFound />} />
