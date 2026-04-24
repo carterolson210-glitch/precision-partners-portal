@@ -30,6 +30,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import NotFound from "./pages/NotFound";
 import ResetPassword from "./pages/ResetPassword";
 import SignDocument from "./pages/SignDocument";
+import AuthCallback from "./pages/AuthCallback";
 
 
 const queryClient = new QueryClient();
@@ -76,7 +77,7 @@ const App = () => (
             <Route path="/dashboard/referrals" element={<ProtectedRoute><Referrals /></ProtectedRoute>} />
             <Route path="/dashboard/downloads" element={<ProtectedRoute><Downloads /></ProtectedRoute>} />
             <Route path="/dashboard/copilot" element={<ProtectedRoute><EngineeringCopilot /></ProtectedRoute>} />
-            <Route path="/auth/callback" element={<AuthCallback />} />  {/* ADD THIS */}
+            <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="*" element={<NotFound />} />
             <Route path="/dashboard/pe-stamps" element={<ProtectedRoute><PEStampManager /></ProtectedRoute>} />
 
