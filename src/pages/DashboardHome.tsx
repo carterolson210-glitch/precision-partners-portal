@@ -245,12 +245,14 @@ const DashboardHome = () => {
           )}
         </DashboardCard>
 
-        {/* Projects — feature not built yet */}
+        {/* Projects */}
         <DashboardCard title="Projects">
           <EmptyState
             icon={<ClipboardList className="w-8 h-8 text-steel" />}
-            title="Project management coming soon"
-            description="Track projects with tasks, milestones, and team assignments using a Kanban board. This feature is currently being developed."
+            title="Manage Your Projects"
+            description="Track projects with tasks, milestones, and team assignments using a Kanban board or Gantt chart view."
+            actionLabel="View Projects"
+            onAction={() => navigate("/dashboard/projects")}
           />
         </DashboardCard>
 
