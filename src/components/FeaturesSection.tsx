@@ -12,8 +12,8 @@ const features = [
   },
   {
     icon: Wrench,
-    title: "Structural Load Calculator",
-    description: "Calculate dead, live, wind, seismic, and snow loads per ASCE 7. Output code-referenced calculation sheets ready for permit submission.",
+    title: "Electrical Load Calculator",
+    description: "Calculate electrical service requirements per NEC 220. Input building specs to get accurate amperage, kilowatt, and service size calculations.",
   },
   {
     icon: Calendar,
