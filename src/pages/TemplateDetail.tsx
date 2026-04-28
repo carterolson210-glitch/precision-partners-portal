@@ -9,11 +9,106 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 import { toast } from "sonner";
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import type { User } from "@supabase/supabase-js";
+
+const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
+const stripePromise = loadStripe(stripePublicKey ?? "");
+
+interface CheckoutFormProps {
+  clientSecret: string;
+  user: User | null;
+  onCompleted: () => void;
+}
+
+const CheckoutForm = ({ clientSecret, user, onCompleted }: CheckoutFormProps) => {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [processing, setProcessing] = useState(false);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!stripe || !elements) {
+      setPaymentError("Stripe is still loading. Please wait a moment.");
+      return;
+    }
+
+    const cardElement = elements.getElement(CardElement);
+    if (!cardElement) {
+      setPaymentError("Card input is not available.");
+      return;
+    }
+
+    setProcessing(true);
+    setPaymentError(null);
+
+    try {
+      const result = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: cardElement,
+          billing_details: {
+            email: user?.email ?? undefined,
+          },
+        },
+      });
+
+      if (result.error) {
+        setPaymentError(result.error.message || "Payment failed. Please try another card.");
+      } else if (result.paymentIntent?.status === "succeeded") {
+        toast.success("Payment completed successfully.");
+        onCompleted();
+      } else {
+        setPaymentError("Payment was not completed. Please try again.");
+      }
+    } catch (error: any) {
+      setPaymentError(error?.message || "Unable to complete payment.");
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="rounded-2xl border border-card-border bg-card p-4">
+        <label className="block text-sm font-medium text-body-text mb-2">Card details</label>
+        <div className="rounded-xl border border-border p-4 bg-background">
+          <CardElement
+            options={{
+              style: {
+                base: {
+                  fontSize: "16px",
+                  color: "#111827",
+                  "::placeholder": {
+                    color: "#9CA3AF",
+                  },
+                },
+                invalid: {
+                  color: "#EF4444",
+                },
+              },
+            }}
+          />
+        </div>
+      </div>
+
+      {paymentError && <p className="text-sm text-destructive">{paymentError}</p>}
+
+      <Button type="submit" variant="gold" size="lg" className="w-full" disabled={processing}>
+        {processing ? "Submitting…" : "Pay now"}
+      </Button>
+    </form>
+  );
+};
 
 const TemplateDetail = () => {
   const { slug } = useParams<{ slug: string }>();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
   const template = TEMPLATES.find((t) => t.slug === slug);
 
   if (!template) {
@@ -34,22 +129,32 @@ const TemplateDetail = () => {
       toast.error("Please log in or create an account to purchase templates.");
       return;
     }
+
+    if (!stripePublicKey) {
+      setPaymentError("Stripe is not configured. Please set VITE_STRIPE_PUBLISHABLE_KEY.");
+      return;
+    }
+
     setLoading(true);
+    setPaymentError(null);
+
     try {
-      const { data, error } = await supabase.functions.invoke("create-template-payment", {
+      const { data, error } = await supabase.functions.invoke("create-template-payment-intent", {
         body: {
           templateSlug: template.slug,
           templateName: template.name,
-          priceId: template.priceId,
           amountCents: template.price * 100,
         },
       });
+
       if (error) throw error;
-      if (data?.url) {
-        window.open(data.url, "_blank");
+      if (!data?.clientSecret) {
+        throw new Error("Unable to initialize payment.");
       }
+
+      setClientSecret(data.clientSecret);
     } catch (err: any) {
-      toast.error(err.message || "Failed to create payment session");
+      setPaymentError(err.message || "Failed to create payment intent.");
     } finally {
       setLoading(false);
     }
@@ -102,26 +207,56 @@ const TemplateDetail = () => {
                   <span className="text-[36px] font-bold text-body-text font-display">${template.price}</span>
                   <span className="text-caption text-[14px] ml-1">one-time</span>
                 </div>
-                <Button
-                  variant="gold"
-                  size="lg"
-                  className="w-full"
-                  onClick={handlePurchase}
-                  disabled={loading}
-                >
-                  {loading ? "Processing…" : (
-                    <><ShoppingCart className="w-4 h-4 mr-2" /> Purchase Template</>
-                  )}
-                </Button>
-                {!user && (
-                  <p className="text-center text-caption text-[12px] mt-3">
-                    <Link to="/login" className="text-gold hover:underline">Log in</Link> or{" "}
-                    <Link to="/register" className="text-gold hover:underline">create an account</Link> to purchase
-                  </p>
+
+                {paymentSuccess ? (
+                  <div className="space-y-4">
+                    <div className="rounded-2xl border border-green-200 bg-green-50 p-5 text-center">
+                      <Check className="mx-auto mb-3 h-7 w-7 text-green-600" />
+                      <h2 className="text-lg font-semibold text-body-text">Payment successful</h2>
+                      <p className="text-caption text-[13px] mt-2 text-description">
+                        Your template is ready to download. Access it from your dashboard.
+                      </p>
+                    </div>
+                    <Link to="/dashboard/downloads">
+                      <Button variant="secondary" size="lg" className="w-full">
+                        View Downloads
+                      </Button>
+                    </Link>
+                  </div>
+                ) : clientSecret ? (
+                  <Elements stripe={stripePromise}>
+                    <div className="space-y-4">
+                      <CheckoutForm clientSecret={clientSecret} user={user} onCompleted={() => setPaymentSuccess(true)} />
+                      <Button variant="outline" size="lg" className="w-full" onClick={() => setClientSecret(null)}>
+                        Cancel
+                      </Button>
+                    </div>
+                  </Elements>
+                ) : (
+                  <>
+                    <Button
+                      variant="gold"
+                      size="lg"
+                      className="w-full"
+                      onClick={handlePurchase}
+                      disabled={loading}
+                    >
+                      {loading ? "Processing…" : (
+                        <><ShoppingCart className="w-4 h-4 mr-2" /> Purchase Template</>
+                      )}
+                    </Button>
+                    {!user && (
+                      <p className="text-center text-caption text-[12px] mt-3">
+                        <Link to="/login" className="text-gold hover:underline">Log in</Link> or{" "}
+                        <Link to="/register" className="text-gold hover:underline">create an account</Link> to purchase
+                      </p>
+                    )}
+                    <div className="flex items-center justify-center gap-1.5 mt-4 text-caption text-[12px]">
+                      <Lock className="w-3 h-3" /> Secure payment via Stripe
+                    </div>
+                    {paymentError && <p className="mt-4 text-sm text-destructive">{paymentError}</p>}
+                  </>
                 )}
-                <div className="flex items-center justify-center gap-1.5 mt-4 text-caption text-[12px]">
-                  <Lock className="w-3 h-3" /> Secure payment via Stripe
-                </div>
               </div>
             </div>
           </div>
