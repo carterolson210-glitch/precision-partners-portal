@@ -31,6 +31,33 @@ serve(async (req) => {
     const user = userData.user;
     if (!user?.email) throw new Error("User not authenticated or email not available");
 
+    // First check our database for subscription status
+    const { data: subData, error: subError } = await supabaseClient
+      .from("user_subscriptions")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(1);
+
+    if (!subError && subData && subData.length > 0) {
+      const subscription = subData[0];
+      const isActive = subscription.status === "active" || subscription.status === "trialing";
+      const now = new Date();
+      const periodEnd = new Date(subscription.current_period_end);
+
+      return new Response(JSON.stringify({
+        subscribed: isActive,
+        product_id: subscription.product_id,
+        subscription_end: periodEnd.toISOString(),
+        status: subscription.status,
+        trial_end: subscription.trial_end,
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
+    }
+
+    // Fallback to Stripe API if no database record exists
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
 
@@ -44,24 +71,28 @@ serve(async (req) => {
     const customerId = customers.data[0].id;
     const subscriptions = await stripe.subscriptions.list({
       customer: customerId,
-      status: "active",
       limit: 1,
     });
 
-    const hasActiveSub = subscriptions.data.length > 0;
-    let productId: string | null = null;
-    let subscriptionEnd: string | null = null;
-
-    if (hasActiveSub) {
-      const subscription = subscriptions.data[0];
-      subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
-      productId = subscription.items.data[0].price.product as string;
+    if (subscriptions.data.length === 0) {
+      return new Response(JSON.stringify({ subscribed: false }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
     }
+
+    const subscription = subscriptions.data[0];
+    const hasActiveSub = subscription.status === "active" || subscription.status === "trialing";
+    const productId = subscription.items.data[0]?.price.product as string;
+    const subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
+    const trialEnd = subscription.trial_end ? new Date(subscription.trial_end * 1000).toISOString() : null;
 
     return new Response(JSON.stringify({
       subscribed: hasActiveSub,
       product_id: productId,
       subscription_end: subscriptionEnd,
+      status: subscription.status,
+      trial_end: trialEnd,
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,

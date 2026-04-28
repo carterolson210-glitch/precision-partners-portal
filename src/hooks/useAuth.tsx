@@ -13,6 +13,8 @@ interface AuthContextType {
     tierKey: TierKey | null;
     tierLevel: number;
     subscriptionEnd: string | null;
+    status: string | null;
+    trialEnd: string | null;
     loading: boolean;
   };
   refreshSubscription: () => Promise<void>;
@@ -28,6 +30,8 @@ const AuthContext = createContext<AuthContextType>({
     tierKey: null,
     tierLevel: 0,
     subscriptionEnd: null,
+    status: null,
+    trialEnd: null,
     loading: true,
   },
   refreshSubscription: async () => {},
@@ -42,6 +46,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     tierKey: null as TierKey | null,
     tierLevel: 0,
     subscriptionEnd: null as string | null,
+    status: null as string | null,
+    trialEnd: null as string | null,
     loading: true,
   });
 
@@ -59,6 +65,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         tierKey,
         tierLevel: getTierLevel(tierKey),
         subscriptionEnd: data.subscription_end ?? null,
+        status: data.status ?? null,
+        trialEnd: data.trial_end ?? null,
         loading: false,
       });
     } catch {
@@ -97,6 +105,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         tierKey: null,
         tierLevel: 0,
         subscriptionEnd: null,
+        status: null,
+        trialEnd: null,
         loading: false,
       });
     }

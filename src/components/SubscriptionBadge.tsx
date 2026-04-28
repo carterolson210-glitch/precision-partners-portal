@@ -44,6 +44,10 @@ const SubscriptionBadge = () => {
   }
 
   const tierConfig = subscription.tierKey ? SUBSCRIPTION_TIERS[subscription.tierKey] : null;
+  const isTrialing = subscription.status === "trialing";
+  const trialDaysLeft = subscription.trialEnd
+    ? Math.ceil((new Date(subscription.trialEnd).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+    : 0;
 
   return (
     <div className="bg-section-alt border border-card-border rounded-lg p-4 flex items-center justify-between">
@@ -51,9 +55,14 @@ const SubscriptionBadge = () => {
         <Crown className="w-5 h-5 text-gold" />
         <div>
           <p className="text-[14px] font-medium text-body-text">
-            {tierConfig?.name ?? "Active"} Plan
+            {isTrialing ? "Free Trial" : (tierConfig?.name ?? "Active")} Plan
           </p>
-          {subscription.subscriptionEnd && (
+          {isTrialing && subscription.trialEnd && (
+            <p className="text-[12px] text-description">
+              {trialDaysLeft > 0 ? `${trialDaysLeft} days left` : "Trial ending soon"}
+            </p>
+          )}
+          {!isTrialing && subscription.subscriptionEnd && (
             <p className="text-[12px] text-description">
               Renews {new Date(subscription.subscriptionEnd).toLocaleDateString()}
             </p>
