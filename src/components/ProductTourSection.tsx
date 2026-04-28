@@ -18,7 +18,7 @@ const ProductTourSection = () => {
           </div>
           <p className="text-body-text font-semibold text-[18px] font-body">Product Tour Video</p>
           <p className="caption-text max-w-md">
-            Embed your screen recording here to show prospective customers a live walkthrough of the platform.
+            Coming soon
           </p>
         </div>
       </div>

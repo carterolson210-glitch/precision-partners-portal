@@ -454,7 +454,7 @@ const Invoicing = () => {
                     <Input
                       value={clientName}
                       onChange={(e) => setClientName(e.target.value)}
-                      placeholder="John Smith"
+                      placeholder=""
                     />
                   </div>
                   <div>
@@ -462,7 +462,7 @@ const Invoicing = () => {
                     <Input
                       value={clientCompany}
                       onChange={(e) => setClientCompany(e.target.value)}
-                      placeholder="ABC Construction Inc."
+                      placeholder=""
                     />
                   </div>
                   <div>
@@ -471,7 +471,7 @@ const Invoicing = () => {
                       type="email"
                       value={clientEmail}
                       onChange={(e) => setClientEmail(e.target.value)}
-                      placeholder="john@abcconstruction.com"
+                      placeholder=""
                     />
                   </div>
                   <div>
@@ -479,7 +479,7 @@ const Invoicing = () => {
                     <Input
                       value={clientPhone}
                       onChange={(e) => setClientPhone(e.target.value)}
-                      placeholder="(555) 123-4567"
+                      placeholder=""
                     />
                   </div>
                   <div className="md:col-span-2">
@@ -487,7 +487,7 @@ const Invoicing = () => {
                     <Textarea
                       value={clientAddress}
                       onChange={(e) => setClientAddress(e.target.value)}
-                      placeholder="123 Main St, City, State 12345"
+                      placeholder=""
                       rows={2}
                     />
                   </div>
@@ -506,7 +506,7 @@ const Invoicing = () => {
                     <Input
                       value={projectName}
                       onChange={(e) => setProjectName(e.target.value)}
-                      placeholder="Downtown Office Building"
+                      placeholder=""
                     />
                   </div>
                   <div>
@@ -522,7 +522,7 @@ const Invoicing = () => {
                     <Textarea
                       value={projectAddress}
                       onChange={(e) => setProjectAddress(e.target.value)}
-                      placeholder="456 Project Ave, City, State 12345"
+                      placeholder=""
                       rows={2}
                     />
                   </div>
@@ -561,7 +561,7 @@ const Invoicing = () => {
                         <Input
                           value={item.description}
                           onChange={(e) => updateLineItem(index, 'description', e.target.value)}
-                          placeholder="Detailed service description"
+                          placeholder=""
                         />
                       </div>
                       <div className="col-span-1">
@@ -714,7 +714,7 @@ const Invoicing = () => {
                 <Textarea
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Additional notes, terms, or special instructions..."
+                  placeholder=""
                   rows={3}
                 />
               </div>

@@ -90,38 +90,8 @@ const TeamWorkspace = () => {
   }, [user]);
 
   const fetchActivities = useCallback(async () => {
-    // Mock activity data - in a real app, this would come from a database
-    const mockActivities: ActivityItem[] = [
-      {
-        id: "1",
-        type: "member_added",
-        description: "John Smith joined the team as an Electrician",
-        timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-        user: "Admin"
-      },
-      {
-        id: "2",
-        type: "project_created",
-        description: "New project 'Downtown Office Building' was created",
-        timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
-        user: "Sarah Johnson"
-      },
-      {
-        id: "3",
-        type: "invoice_completed",
-        description: "Invoice #INV-2404-AB12 was marked as paid",
-        timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
-        user: "Mike Davis"
-      },
-      {
-        id: "4",
-        type: "member_updated",
-        description: "Lisa Chen was promoted to Manager",
-        timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-        user: "Admin"
-      }
-    ];
-    setActivities(mockActivities);
+    // TODO: Implement real activity feed from database
+    setActivities([]);
   }, []);
 
   const resetForm = () => {
@@ -300,7 +270,7 @@ const TeamWorkspace = () => {
                       <Input
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
-                        placeholder="John Smith"
+                        placeholder=""
                       />
                     </div>
                     <div>
@@ -309,7 +279,7 @@ const TeamWorkspace = () => {
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder="john@company.com"
+                        placeholder=""
                       />
                     </div>
                     <div>
@@ -485,7 +455,7 @@ const TeamWorkspace = () => {
               <Input
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                placeholder="John Smith"
+                placeholder=""
               />
             </div>
             <div>
@@ -494,7 +464,7 @@ const TeamWorkspace = () => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="john@company.com"
+                placeholder=""
               />
             </div>
             <div>

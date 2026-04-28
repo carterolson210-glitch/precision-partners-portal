@@ -289,11 +289,11 @@ const PEStampManager = () => {
           <div className="space-y-4">
             <div>
               <Label>Label</Label>
-              <Input value={label} onChange={(e) => setLabel(e.target.value)} placeholder="e.g. California Structural PE" />
+              <Input value={label} onChange={(e) => setLabel(e.target.value)} placeholder="" />
             </div>
             <div>
               <Label>License Number *</Label>
-              <Input value={licenseNumber} onChange={(e) => setLicenseNumber(e.target.value)} placeholder="e.g. S-12345" />
+              <Input value={licenseNumber} onChange={(e) => setLicenseNumber(e.target.value)} placeholder="" />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
