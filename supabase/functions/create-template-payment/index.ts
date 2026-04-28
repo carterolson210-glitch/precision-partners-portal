@@ -38,17 +38,20 @@ serve(async (req) => {
       customerId = customers.data[0].id;
     }
 
+    const purchaseId = crypto.randomUUID();
+
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
       line_items: [{ price: priceId, quantity: 1 }],
       mode: "payment",
-      success_url: `${req.headers.get("origin")}/dashboard/downloads?purchased=${templateSlug}`,
-      cancel_url: `${req.headers.get("origin")}/templates/${templateSlug}`,
+      success_url: `${req.headers.get("origin")}/dashboard/downloads?purchased=${templateSlug}&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${req.headers.get("origin")}/templates/${templateSlug}?checkout=cancelled`,
       metadata: {
         user_id: user.id,
         template_slug: templateSlug,
         template_name: templateName || templateSlug,
+        template_purchase_id: purchaseId,
       },
     });
 
@@ -59,12 +62,13 @@ serve(async (req) => {
     );
 
     await serviceClient.from("template_purchases").insert({
+      id: purchaseId,
       user_id: user.id,
       template_slug: templateSlug,
       template_name: templateName || templateSlug,
       stripe_session_id: session.id,
       amount_cents: amountCents || 0,
-      status: "completed",
+      status: "pending",
     });
 
     return new Response(JSON.stringify({ url: session.url }), {

@@ -27,13 +27,14 @@ Deno.serve(async (req) => {
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
       const invoiceId = session.metadata?.invoice_id;
+      const templatePurchaseId = session.metadata?.template_purchase_id;
+
+      const supabase = createClient(
+        Deno.env.get("SUPABASE_URL")!,
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+      );
 
       if (invoiceId) {
-        const supabase = createClient(
-          Deno.env.get("SUPABASE_URL")!,
-          Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-        );
-
         await supabase.from("invoices").update({
           status: "paid",
           paid_at: new Date().toISOString(),
@@ -41,6 +42,14 @@ Deno.serve(async (req) => {
         }).eq("id", invoiceId);
 
         console.log(`Invoice ${invoiceId} marked as paid via Stripe webhook`);
+      }
+
+      if (templatePurchaseId) {
+        await supabase.from("template_purchases").update({
+          status: "completed",
+        }).eq("id", templatePurchaseId);
+
+        console.log(`Template purchase ${templatePurchaseId} marked as completed via Stripe webhook`);
       }
     }
 
