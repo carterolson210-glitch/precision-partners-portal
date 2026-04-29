@@ -11,6 +11,9 @@ import Register from "./pages/Register";
 import DashboardHome from "./pages/DashboardHome";
 import Estimator from "./pages/Estimator";
 import LoadCalculator from "./pages/LoadCalculator";
+import Features from "./pages/Features";
+import HowItWorks from "./pages/HowItWorks";
+import Security from "./pages/Security";
 import Scheduling from "./pages/Scheduling";
 import Projects from "./pages/Projects";
 import Documents from "./pages/Documents";
@@ -61,6 +64,9 @@ const App = () => (
             <Route path="/sign" element={<SignDocument />} />
             <Route path="/templates" element={<Templates />} />
             <Route path="/templates/:slug" element={<TemplateDetail />} />
+            <Route path="/features" element={<Features />} />
+            <Route path="/how-it-works" element={<HowItWorks />} />
+            <Route path="/security" element={<Security />} />
 
             {/* Dashboard (protected) */}
             <Route path="/dashboard" element={<ProtectedRoute><DashboardHome /></ProtectedRoute>} />
