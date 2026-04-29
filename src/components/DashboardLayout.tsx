@@ -6,6 +6,14 @@ import {
   FolderOpen, DollarSign, FileText, BookOpen, Users, BarChart3,
   Menu, X, ChevronDown, LogOut, Settings, Bell, Gift, Download, Bot, Stamp,
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 
 const sidebarItems = [
   { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
@@ -72,12 +80,24 @@ const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
             <button className="p-2 hover:bg-section-alt rounded-lg transition-colors" aria-label="Settings">
               <Settings className="w-5 h-5 text-caption" />
             </button>
-            <div className="flex items-center gap-2 cursor-pointer">
-              <div className="w-8 h-8 bg-navy/10 rounded-full flex items-center justify-center">
-                <span className="text-navy text-[13px] font-semibold">{userInitial}</span>
-              </div>
-              <ChevronDown className="w-4 h-4 text-caption hidden sm:block" />
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-2 rounded-full border border-card-border bg-background px-2 py-1 hover:bg-section-alt transition-colors">
+                  <div className="w-8 h-8 bg-navy/10 rounded-full flex items-center justify-center">
+                    <span className="text-navy text-[13px] font-semibold">{userInitial}</span>
+                  </div>
+                  <ChevronDown className="w-4 h-4 text-caption hidden sm:block" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuLabel>{user?.user_metadata?.full_name ?? user?.email}</DropdownMenuLabel>
+                <DropdownMenuItem onSelect={() => navigate("/dashboard")}>Profile</DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => navigate("/dashboard/analytics")}>Notifications</DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => navigate("/dashboard")}>Settings</DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onSelect={handleLogout}>Sign Out</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </header>
