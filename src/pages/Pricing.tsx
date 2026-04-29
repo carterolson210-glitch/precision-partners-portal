@@ -67,8 +67,9 @@ const tiers = [
       "99.9% uptime SLA",
       "Custom onboarding assistance",
     ],
-    cta: "Contact Sales",
+    cta: "Start Enterprise Plan",
     trial: false,
+    purchase: true,
     popular: false,
   },
 ];
@@ -188,6 +189,16 @@ const Pricing = () => {
                     {current ? (
                       <Button variant="outline" size="lg" className="w-full mb-8" disabled>
                         Current Plan
+                      </Button>
+                    ) : tier.purchase ? (
+                      <Button
+                        variant={tier.popular ? "gold" : "outline"}
+                        size="lg"
+                        className="w-full mb-8"
+                        onClick={() => handleCheckout(tier.key)}
+                        disabled={loadingTier === tier.key}
+                      >
+                        {loadingTier === tier.key ? "Loading…" : tier.cta}
                       </Button>
                     ) : tier.trial ? (
                       <Button
