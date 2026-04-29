@@ -36,7 +36,7 @@ const HowItWorksSection = () => {
           <span className="gold-underline">How It Works</span>
         </h2>
         <p className="description-text text-center max-w-2xl mx-auto mb-12 text-[18px]">
-          Get your engineering practice running on the platform in under 30 minutes.
+          Get your engineering practice running with Clearline Engineering in under 30 minutes.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">

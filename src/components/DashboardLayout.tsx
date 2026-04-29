@@ -61,7 +61,7 @@ const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
                 <span className="text-primary-foreground font-bold text-[11px]">⚙</span>
               </div>
               <span className="font-display font-bold text-[16px] text-body-text hidden sm:inline">
-                Your<span className="text-gold">Platform</span>
+                Clearline<span className="text-gold">Engineering</span>
               </span>
             </Link>
           </div>

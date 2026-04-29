@@ -35,7 +35,7 @@ const tiers = [
     name: "Growing Firms",
     monthly: SUBSCRIPTION_TIERS.growing.monthly_price,
     annual: SUBSCRIPTION_TIERS.growing.annual_price,
-    description: "Full-featured platform for firms scaling their practice with multiple engineers.",
+    description: "Full-featured Clearline Engineering solution for firms scaling their practice with multiple engineers.",
     features: [
       "Everything in Solo & Small Firms",
       "Multi-engineer team accounts",

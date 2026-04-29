@@ -24,12 +24,12 @@ const HeroSection = () => {
           className="bg-navy/60 backdrop-blur-sm rounded-xl p-8 md:p-12 max-w-4xl mx-auto"
         >
           <h1 className="font-display font-bold text-[32px] md:text-[56px] text-primary-foreground leading-[1.1] mb-6">
-            The All-in-One Platform for{" "}
+            Clearline Engineering: The All-in-One Platform for{" "}
             <span className="text-gold">Engineering Professionals</span>
           </h1>
           <p className="text-body-text-light text-[18px] md:text-[20px] max-w-2xl mx-auto mb-8 leading-relaxed">
             Manage projects, clients, proposals, invoicing, scheduling, and compliance — 
-            all from one powerful platform built specifically for engineering firms and independent consultants.
+            all from one powerful platform built by Clearline Engineering specifically for engineering firms and independent consultants.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button variant="gold" size="lg" className="text-[16px]" asChild>

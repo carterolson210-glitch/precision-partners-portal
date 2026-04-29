@@ -5,10 +5,10 @@ const ProductTourSection = () => {
     <section className="section-padding section-alt">
       <div className="container mx-auto px-4 text-center">
         <h2 className="section-heading">
-          <span className="gold-underline">See the Platform in Action</span>
+          <span className="gold-underline">See Clearline Engineering in Action</span>
         </h2>
         <p className="description-text max-w-2xl mx-auto mb-10 text-[18px]">
-          Watch a walkthrough of how engineering firms use the platform to manage their entire practice.
+          Watch a walkthrough of how engineering firms use Clearline Engineering to manage their entire practice.
         </p>
 
         {/* Video Embed Placeholder */}

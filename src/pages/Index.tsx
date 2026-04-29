@@ -37,7 +37,7 @@ const Index = () => {
               Ready to Streamline Your Engineering Practice?
             </h2>
             <p className="text-steel text-[18px] mb-8 max-w-xl mx-auto">
-              Join engineering firms already using the platform to manage their entire business. Start your 14-day free trial today.
+              Join engineering firms already using Clearline Engineering to manage their entire business. Start your 14-day free trial today.
             </p>
             <Button variant="gold" size="lg" className="text-[16px]" asChild>
               <Link to="/register">Start Free Trial</Link>

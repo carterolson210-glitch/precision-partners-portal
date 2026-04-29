@@ -11,7 +11,7 @@ const Footer = () => {
                 <span className="text-gold-text font-display font-bold text-[13px]">⚙</span>
               </div>
               <span className="font-display font-bold text-lg text-body-text-light">
-                Your<span className="text-gold">Platform</span>
+                Clearline Engineering
               </span>
             </div>
             <p className="text-steel text-[14px] leading-relaxed">
@@ -51,7 +51,7 @@ const Footer = () => {
         </div>
 
         <div className="border-t border-steel/20 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-steel text-[13px]">© {new Date().getFullYear()} All rights reserved. Platform name is configurable by the owner.</p>
+          <p className="text-steel text-[13px]">© {new Date().getFullYear()} Clearline Engineering. All rights reserved.</p>
           <p className="text-steel text-[13px]">Built for engineering professionals.</p>
         </div>
       </div>

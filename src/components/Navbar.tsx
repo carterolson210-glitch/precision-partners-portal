@@ -24,7 +24,7 @@ const Navbar = () => {
             <span className="text-primary-foreground font-display font-bold text-[13px]">⚙</span>
           </div>
           <span className="font-display font-bold text-lg text-body-text">
-            Platform
+            Clearline Engineering
           </span>
         </Link>
 

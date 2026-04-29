@@ -236,8 +236,8 @@ const Analytics = () => {
           )}
         </DashboardCard>
 
-        {/* Platform Activity */}
-        <DashboardCard title="Platform Activity Summary">
+        {/* Activity Summary */}
+        <DashboardCard title="Activity Summary">
           {loading ? (
             <div className="h-[220px] bg-section-alt rounded animate-pulse" />
           ) : totalActivity > 0 ? (
@@ -259,7 +259,7 @@ const Analytics = () => {
               ))}
             </div>
           ) : (
-            <ChartEmptyState icon={<BarChart3 className="w-8 h-8 text-steel" />} title="No activity yet" description="Your platform activity summary will show referral, copilot, and purchase metrics as you use the platform." />
+            <ChartEmptyState icon={<BarChart3 className="w-8 h-8 text-steel" />} title="No activity yet" description="Your Clearline Engineering activity summary will show referral, copilot, and purchase metrics as you use the service." />
           )}
         </DashboardCard>
       </div>

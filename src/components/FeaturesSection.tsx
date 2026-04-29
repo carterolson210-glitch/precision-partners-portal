@@ -53,7 +53,7 @@ const features = [
   {
     icon: BarChart3,
     title: "Analytics Dashboard",
-    description: "Live business metrics from your actual platform activity — revenue, utilization, retention, and project performance at a glance.",
+    description: "Live business metrics from your actual Clearline Engineering activity — revenue, utilization, retention, and project performance at a glance.",
   },
 ];
 
@@ -65,7 +65,7 @@ const FeaturesSection = () => {
           <span className="gold-underline">Everything Your Firm Needs</span>
         </h2>
         <p className="description-text text-center max-w-2xl mx-auto mb-12 text-[18px]">
-          Ten purpose-built tools designed for how engineering professionals actually work — 
+          Ten purpose-built tools from Clearline Engineering designed for how engineering professionals actually work — 
           from first client contact through project closeout.
         </p>
 

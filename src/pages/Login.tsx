@@ -75,7 +75,7 @@ const Login = () => {
             <span className="text-primary-foreground font-display font-bold text-[16px]">⚙</span>
           </div>
           <h1 className="font-display font-bold text-[28px] text-body-text">Welcome Back</h1>
-          <p className="caption-text mt-2">Sign in to your engineering platform</p>
+          <p className="caption-text mt-2">Sign in to Clearline Engineering</p>
         </div>
 
         <div className="bg-card border border-card-border rounded-xl p-8">

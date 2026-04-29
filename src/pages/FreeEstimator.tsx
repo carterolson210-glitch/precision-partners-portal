@@ -83,7 +83,7 @@ const FreeEstimator = () => {
               <span className="text-primary-foreground font-display font-bold text-[13px]">⚙</span>
             </div>
             <span className="font-display font-bold text-lg text-body-text">
-              Simpli<span className="text-gold">Engineering</span>
+              Clearline<span className="text-gold">Engineering</span>
             </span>
           </Link>
           <div className="flex items-center gap-3">
@@ -200,7 +200,7 @@ const FreeEstimator = () => {
                   Save &amp; Export This Estimate as a PDF Proposal
                 </h3>
                 <p className="text-steel text-[15px] mb-6 max-w-md mx-auto">
-                  Create your free Simpli Engineering account to save estimates, generate branded PDF proposals, and manage your entire engineering practice.
+                  Create your free Clearline Engineering account to save estimates, generate branded PDF proposals, and manage your entire engineering practice.
                 </p>
                 <Button variant="gold" size="lg" asChild>
                   <Link to="/register?source=cost-estimator">
