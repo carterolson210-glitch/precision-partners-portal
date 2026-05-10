@@ -48,6 +48,7 @@ const Scheduling = () => {
   const [viewMode, setViewMode] = useState<'month' | 'week' | 'day'>('month');
   const [showDialog, setShowDialog] = useState(false);
   const [editingSchedule, setEditingSchedule] = useState<Schedule | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   // Form state
   const [clientName, setClientName] = useState("");
@@ -161,13 +162,17 @@ const Scheduling = () => {
   };
 
   const handleDelete = async (scheduleId: string) => {
-    if (!confirm("Are you sure you want to delete this schedule?")) return;
+    setDeleteConfirm(scheduleId);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteConfirm) return;
 
     try {
       const { error } = await supabase
         .from("schedules")
         .delete()
-        .eq("id", scheduleId);
+        .eq("id", deleteConfirm);
 
       if (error) throw error;
       toast.success("Schedule deleted successfully!");
@@ -175,6 +180,8 @@ const Scheduling = () => {
     } catch (error) {
       console.error("Error deleting schedule:", error);
       toast.error("Failed to delete schedule");
+    } finally {
+      setDeleteConfirm(null);
     }
   };
 
@@ -540,6 +547,24 @@ const Scheduling = () => {
           </div>
         </div>
       </div>
+
+      {/* Delete confirmation dialog */}
+      <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Schedule</DialogTitle>
+          </DialogHeader>
+          <p>Are you sure you want to delete this schedule?</p>
+          <div className="flex justify-end space-x-2 mt-4">
+            <Button variant="outline" onClick={() => setDeleteConfirm(null)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={confirmDelete}>
+              Delete
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 };

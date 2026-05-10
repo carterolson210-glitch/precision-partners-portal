@@ -97,6 +97,7 @@ const Projects = () => {
   const [ganttFilter, setGanttFilter] = useState<'today' | 'week' | 'month'>('month');
   const [showDialog, setShowDialog] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   // Form state
   const [projectName, setProjectName] = useState("");
@@ -212,13 +213,17 @@ const Projects = () => {
   };
 
   const handleDelete = async (projectId: string) => {
-    if (!confirm("Are you sure you want to delete this project?")) return;
+    setDeleteConfirm(projectId);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteConfirm) return;
 
     try {
       const { error } = await supabase
         .from("projects")
         .delete()
-        .eq("id", projectId);
+        .eq("id", deleteConfirm);
 
       if (error) throw error;
       toast.success("Project deleted successfully!");
@@ -226,6 +231,8 @@ const Projects = () => {
     } catch (error) {
       console.error("Error deleting project:", error);
       toast.error("Failed to delete project");
+    } finally {
+      setDeleteConfirm(null);
     }
   };
 
@@ -694,6 +701,24 @@ const Projects = () => {
           </Card>
         )}
       </div>
+
+      {/* Delete confirmation dialog */}
+      <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Project</DialogTitle>
+          </DialogHeader>
+          <p>Are you sure you want to delete this project?</p>
+          <div className="flex justify-end space-x-2 mt-4">
+            <Button variant="outline" onClick={() => setDeleteConfirm(null)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={confirmDelete}>
+              Delete
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 };

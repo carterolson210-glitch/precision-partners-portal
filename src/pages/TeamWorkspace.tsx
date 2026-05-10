@@ -58,6 +58,7 @@ const TeamWorkspace = () => {
   const [editOpen, setEditOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
   const [saving, setSaving] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState<TeamMember | null>(null);
 
   // Form state
   const [fullName, setFullName] = useState("");
@@ -197,15 +198,17 @@ const TeamWorkspace = () => {
   };
 
   const handleDelete = async (member: TeamMember) => {
-    if (!confirm(`Are you sure you want to remove ${member.full_name} from the team?`)) {
-      return;
-    }
+    setDeleteConfirm(member);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteConfirm) return;
 
     try {
       const { error } = await supabase
         .from("team_members")
         .delete()
-        .eq("id", member.id)
+        .eq("id", deleteConfirm.id)
         .eq("user_id", user?.id);
 
       if (error) throw error;
@@ -217,7 +220,7 @@ const TeamWorkspace = () => {
       const newActivity: ActivityItem = {
         id: Date.now().toString(),
         type: "member_removed",
-        description: `${member.full_name} was removed from the team`,
+        description: `${deleteConfirm.full_name} was removed from the team`,
         timestamp: new Date().toISOString(),
         user: "Admin"
       };
@@ -226,6 +229,8 @@ const TeamWorkspace = () => {
     } catch (err: any) {
       console.error("Error deleting team member:", err);
       toast.error(err.message || "Failed to remove team member");
+    } finally {
+      setDeleteConfirm(null);
     }
   };
 
@@ -517,6 +522,24 @@ const TeamWorkspace = () => {
                 Cancel
               </Button>
             </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete confirmation dialog */}
+      <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Remove Team Member</DialogTitle>
+          </DialogHeader>
+          <p>Are you sure you want to remove {deleteConfirm?.full_name} from the team?</p>
+          <div className="flex justify-end space-x-2 mt-4">
+            <Button variant="outline" onClick={() => setDeleteConfirm(null)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={confirmDelete}>
+              Remove
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
