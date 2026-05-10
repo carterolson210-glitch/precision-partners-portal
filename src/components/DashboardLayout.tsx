@@ -77,9 +77,9 @@ const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
             <button className="p-2 hover:bg-section-alt rounded-lg transition-colors" aria-label="Notifications">
               <Bell className="w-5 h-5 text-caption" />
             </button>
-            <button className="p-2 hover:bg-section-alt rounded-lg transition-colors" aria-label="Settings">
+            <Link to="/dashboard/settings" className="p-2 hover:bg-section-alt rounded-lg transition-colors" aria-label="Settings">
               <Settings className="w-5 h-5 text-caption" />
-            </button>
+            </Link>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-2 rounded-full border border-card-border bg-background px-2 py-1 hover:bg-section-alt transition-colors">
@@ -93,7 +93,7 @@ const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
                 <DropdownMenuLabel>{user?.user_metadata?.full_name ?? user?.email}</DropdownMenuLabel>
                 <DropdownMenuItem onSelect={() => navigate("/dashboard")}>Profile</DropdownMenuItem>
                 <DropdownMenuItem onSelect={() => navigate("/dashboard/analytics")}>Notifications</DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => navigate("/dashboard")}>Settings</DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => navigate("/dashboard/settings")}>Settings</DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onSelect={handleLogout}>Sign Out</DropdownMenuItem>
               </DropdownMenuContent>
