@@ -103,10 +103,12 @@ const DashboardHome = () => {
   useEffect(() => {
     if (searchParams.get("checkout") === "success") {
       toast.success("Payment successful! Your subscription is now active.");
-      refreshSubscription();
+      if (user) {
+        refreshSubscription();
+      }
       setSearchParams({}, { replace: true });
     }
-  }, [searchParams, refreshSubscription, setSearchParams]);
+  }, [searchParams, refreshSubscription, setSearchParams, user]);
 
   const greeting = user?.user_metadata?.full_name
     ? `Welcome back, ${user.user_metadata.full_name.split(" ")[0]}`

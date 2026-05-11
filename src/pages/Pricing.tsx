@@ -78,13 +78,15 @@ const Pricing = () => {
   const [annual, setAnnual] = useState(false);
   const [loadingTier, setLoadingTier] = useState<string | null>(null);
   const { user, subscription } = useAuth();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   // Show toast for checkout results
   const checkoutStatus = searchParams.get("checkout");
   if (checkoutStatus === "cancelled") {
     toast.info("Checkout was cancelled. You can try again anytime.");
-    searchParams.delete("checkout");
+    const updatedParams = new URLSearchParams(searchParams);
+    updatedParams.delete("checkout");
+    setSearchParams(updatedParams, { replace: true });
   }
 
   const handleCheckout = async (tierKey: "solo" | "growing" | "enterprise") => {
