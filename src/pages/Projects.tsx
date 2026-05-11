@@ -792,6 +792,7 @@ const Projects = () => {
           </Card>
         )}
       </div>
+    </div>
 
       {/* Delete confirmation dialog */}
       <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
