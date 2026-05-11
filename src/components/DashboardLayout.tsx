@@ -20,6 +20,7 @@ const sidebarItems = [
   { label: "Project Estimator", icon: Calculator, path: "/dashboard/estimator" },
   { label: "Load Calculator", icon: Wrench, path: "/dashboard/calculator" },
   { label: "Scheduling", icon: Calendar, path: "/dashboard/scheduling" },
+  { label: "Clients", icon: Users, path: "/dashboard/clients" },
   { label: "Projects", icon: ClipboardList, path: "/dashboard/projects" },
   { label: "Documents", icon: FolderOpen, path: "/dashboard/documents" },
   { label: "Invoicing", icon: DollarSign, path: "/dashboard/invoicing" },
@@ -120,7 +121,7 @@ const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
         </div>
         <nav className="p-4 flex flex-col gap-1">
           {sidebarItems.map((item) => {
-            const isActive = location.pathname === item.path;
+            const isActive = location.pathname === item.path || location.pathname.startsWith(`${item.path}/`);
             return (
               <Link
                 key={item.path}

@@ -354,6 +354,17 @@ const DashboardHome = () => {
           )}
         </DashboardCard>
 
+        {/* Clients */}
+        <DashboardCard title="Clients">
+          <EmptyState
+            icon={<Users className="w-8 h-8 text-steel" />}
+            title="Manage Your Clients"
+            description="Keep all client relationships, contact details, and project history in one place."
+            actionLabel="View Clients"
+            onAction={() => navigate("/dashboard/clients")}
+          />
+        </DashboardCard>
+
         {/* Projects */}
         <DashboardCard title="Projects">
           <EmptyState

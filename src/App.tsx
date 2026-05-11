@@ -16,6 +16,9 @@ import HowItWorks from "./pages/HowItWorks";
 import Security from "./pages/Security";
 import Scheduling from "./pages/Scheduling";
 import Projects from "./pages/Projects";
+import ProjectDetail from "./pages/ProjectDetail";
+import Clients from "./pages/Clients";
+import ClientDetail from "./pages/ClientDetail";
 import Documents from "./pages/Documents";
 import Invoicing from "./pages/Invoicing";
 import Proposals from "./pages/Proposals";
@@ -80,7 +83,10 @@ const App = () => (
             <Route path="/dashboard/estimator" element={<ProtectedRoute><Estimator /></ProtectedRoute>} />
             <Route path="/dashboard/calculator" element={<ProtectedRoute><LoadCalculator /></ProtectedRoute>} />
             <Route path="/dashboard/scheduling" element={<ProtectedRoute><Scheduling /></ProtectedRoute>} />
+            <Route path="/dashboard/clients" element={<ProtectedRoute><Clients /></ProtectedRoute>} />
+            <Route path="/dashboard/clients/:clientId" element={<ProtectedRoute><ClientDetail /></ProtectedRoute>} />
             <Route path="/dashboard/projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
+            <Route path="/dashboard/projects/:projectId" element={<ProtectedRoute><ProjectDetail /></ProtectedRoute>} />
             <Route path="/dashboard/documents" element={<ProtectedRoute><Documents /></ProtectedRoute>} />
             <Route path="/dashboard/invoicing" element={<ProtectedRoute><Invoicing /></ProtectedRoute>} />
             <Route path="/dashboard/proposals" element={<ProtectedRoute><Proposals /></ProtectedRoute>} />

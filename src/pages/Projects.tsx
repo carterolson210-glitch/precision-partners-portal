@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,7 +10,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import {
@@ -20,9 +22,9 @@ import {
   DollarSign,
   Edit,
   Trash2,
+  ClipboardList,
   KanbanSquare,
   BarChart3,
-  Clock,
   AlertCircle,
   CheckCircle2,
   PauseCircle,
@@ -90,10 +92,12 @@ const jobTypeConfig = {
 };
 
 const Projects = () => {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
-  const [viewMode, setViewMode] = useState<'kanban' | 'gantt'>('kanban');
+  const [viewMode, setViewMode] = useState<'kanban' | 'gantt' | 'list'>('kanban');
+  const [searchQuery, setSearchQuery] = useState("");
   const [ganttFilter, setGanttFilter] = useState<'today' | 'week' | 'month'>('month');
   const [showDialog, setShowDialog] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
@@ -147,6 +151,17 @@ const Projects = () => {
     setNotes("");
     setEditingProject(null);
   };
+
+  const filteredProjects = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) return projects;
+    return projects.filter((project) =>
+      project.project_name.toLowerCase().includes(query) ||
+      project.client_name.toLowerCase().includes(query) ||
+      project.address?.toLowerCase().includes(query) ||
+      project.assigned_to?.toLowerCase().includes(query)
+    );
+  }, [projects, searchQuery]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -365,11 +380,15 @@ const Projects = () => {
       <div className="space-y-6">
         {/* Header with view toggle and add button */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as 'kanban' | 'gantt')}>
+          <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as 'kanban' | 'list' | 'gantt')}>
             <TabsList>
               <TabsTrigger value="kanban" className="flex items-center gap-2">
                 <KanbanSquare className="w-4 h-4" />
                 Kanban Board
+              </TabsTrigger>
+              <TabsTrigger value="list" className="flex items-center gap-2">
+                <ClipboardList className="w-4 h-4" />
+                Project List
               </TabsTrigger>
               <TabsTrigger value="gantt" className="flex items-center gap-2">
                 <BarChart3 className="w-4 h-4" />
@@ -378,13 +397,20 @@ const Projects = () => {
             </TabsList>
           </Tabs>
 
-          <Dialog open={showDialog} onOpenChange={setShowDialog}>
-            <DialogTrigger asChild>
-              <Button onClick={() => { resetForm(); setShowDialog(true); }}>
-                <Plus className="w-4 h-4 mr-2" />
-                New Project
-              </Button>
-            </DialogTrigger>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <Input
+              placeholder="Search projects, clients, or addresses"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="max-w-xl"
+            />
+            <Dialog open={showDialog} onOpenChange={setShowDialog}>
+              <DialogTrigger asChild>
+                <Button onClick={() => { resetForm(); setShowDialog(true); }}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  New Project
+                </Button>
+              </DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>{editingProject ? 'Edit Project' : 'Create New Project'}</DialogTitle>
@@ -641,6 +667,71 @@ const Projects = () => {
               })}
             </div>
           </DragDropContext>
+        )}
+
+        {/* Project List View */}
+        {viewMode === 'list' && (
+          <Card>
+            <CardHeader>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <CardTitle>Project Directory</CardTitle>
+                  <p className="text-sm text-muted-foreground">Browse all projects, filter by client, and jump directly to project detail pages.</p>
+                </div>
+                <Input
+                  placeholder="Filter projects..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="max-w-md"
+                />
+              </div>
+            </CardHeader>
+            <CardContent className="overflow-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Project</TableHead>
+                    <TableHead>Client</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Priority</TableHead>
+                    <TableHead>Due Date</TableHead>
+                    <TableHead className="text-right">Action</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredProjects.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                        No projects match your search. Try a different term or create a new project.
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    filteredProjects.map((project) => (
+                      <TableRow key={project.id} className="hover:bg-muted/50">
+                        <TableCell>
+                          <div className="font-medium">{project.project_name}</div>
+                          <div className="text-xs text-muted-foreground">{project.address || "No address"}</div>
+                        </TableCell>
+                        <TableCell>{project.client_name}</TableCell>
+                        <TableCell>
+                          <Badge className={statusConfig[project.status].color}>{statusConfig[project.status].label}</Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge className={priorityConfig[project.priority].color}>{priorityConfig[project.priority].label}</Badge>
+                        </TableCell>
+                        <TableCell>{project.due_date ? format(parseISO(project.due_date), 'MMM d, yyyy') : 'TBD'}</TableCell>
+                        <TableCell className="text-right">
+                          <Button variant="ghost" size="sm" onClick={() => navigate(`/dashboard/projects/${project.id}`)}>
+                            View
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
         )}
 
         {/* Gantt Chart View */}
