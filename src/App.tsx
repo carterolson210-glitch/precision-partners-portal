@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Navigate, useLocation } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -35,14 +35,20 @@ import ResetPassword from "./pages/ResetPassword";
 import SignDocument from "./pages/SignDocument";
 import AuthCallback from "./pages/AuthCallback";
 import Settings from "./pages/Settings";
+import Onboarding from "./pages/Onboarding";
 
 
 const queryClient = new QueryClient();
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
+  const location = useLocation();
+  const onboardingComplete = typeof window !== "undefined" && localStorage.getItem("onboardingComplete") === "true";
+
   if (loading) return <div className="min-h-screen flex items-center justify-center"><span className="text-description">Loading…</span></div>;
   if (!user) return <Navigate to="/login" replace />;
+  if (!onboardingComplete && location.pathname !== "/onboarding") return <Navigate to="/onboarding" replace />;
+  if (onboardingComplete && location.pathname === "/onboarding") return <Navigate to="/dashboard" replace />;
   return <>{children}</>;
 };
 
@@ -83,8 +89,7 @@ const App = () => (
             <Route path="/dashboard/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
             <Route path="/dashboard/referrals" element={<ProtectedRoute><Referrals /></ProtectedRoute>} />
             <Route path="/dashboard/downloads" element={<ProtectedRoute><Downloads /></ProtectedRoute>} />
-            <Route path="/dashboard/copilot" element={<ProtectedRoute><EngineeringCopilot /></ProtectedRoute>} />
-            <Route path="/auth/callback" element={<AuthCallback />} />
+            <Route path="/dashboard/copilot" element={<ProtectedRoute><EngineeringCopilot /></ProtectedRoute>} />            <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />            <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/dashboard/pe-stamps" element={<ProtectedRoute><PEStampManager /></ProtectedRoute>} />
             <Route path="/dashboard/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
 

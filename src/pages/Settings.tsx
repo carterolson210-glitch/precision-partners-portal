@@ -82,10 +82,10 @@ const Settings = () => {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   // Profile & Account
-  const [fullName, setFullName] = useState('John Doe');
-  const [jobTitle, setJobTitle] = useState('Senior Engineer');
-  const [companyName, setCompanyName] = useState('Precision Partners Engineering');
-  const [email, setEmail] = useState('john.doe@precisionpartners.com');
+  const [fullName, setFullName] = useState('');
+  const [jobTitle, setJobTitle] = useState('');
+  const [companyName, setCompanyName] = useState('');
+  const [email, setEmail] = useState('');
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -140,11 +140,7 @@ const Settings = () => {
   });
 
   // Team & Permissions
-  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([
-    { id: '1', name: 'John Doe', role: 'Admin', status: 'Active', email: 'john.doe@precisionpartners.com' },
-    { id: '2', name: 'Jane Smith', role: 'Engineer', status: 'Active', email: 'jane.smith@precisionpartners.com' },
-    { id: '3', name: 'Bob Johnson', role: 'Viewer', status: 'Inactive', email: 'bob.johnson@precisionpartners.com' }
-  ]);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteRole, setInviteRole] = useState<'Admin' | 'Engineer' | 'Viewer'>('Engineer');
   const [removeMemberConfirm, setRemoveMemberConfirm] = useState('');
@@ -152,13 +148,13 @@ const Settings = () => {
   const [memberToRemove, setMemberToRemove] = useState<TeamMember | null>(null);
 
   // Integrations
-  const [apiKey, setApiKey] = useState('sk-1234567890abcdef');
-  const [webhookUrl, setWebhookUrl] = useState('https://api.precisionpartners.com/webhook');
+  const [apiKey, setApiKey] = useState('');
+  const [webhookUrl, setWebhookUrl] = useState('');
   const [connectedApps, setConnectedApps] = useState({
-    quickbooks: { connected: true, lastSynced: '2024-01-15 10:30 AM' },
+    quickbooks: { connected: false, lastSynced: null },
     autocad: { connected: false, lastSynced: null },
-    procore: { connected: true, lastSynced: '2024-01-14 3:45 PM' },
-    googleDrive: { connected: true, lastSynced: '2024-01-15 9:15 AM' },
+    procore: { connected: false, lastSynced: null },
+    googleDrive: { connected: false, lastSynced: null },
     dropbox: { connected: false, lastSynced: null }
   });
   const [exportFormats, setExportFormats] = useState({
@@ -980,37 +976,43 @@ const Settings = () => {
             <CardContent className="space-y-6">
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">Team Members</h3>
-                <div className="space-y-2">
-                  {teamMembers.map((member) => (
-                    <div key={member.id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex items-center gap-4">
-                        <Avatar>
-                          <AvatarFallback>{member.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="font-medium">{member.name}</p>
-                          <p className="text-sm text-gray-600">{member.email}</p>
+                {teamMembers.length === 0 ? (
+                  <div className="p-4 border rounded-lg bg-gray-50 text-sm text-gray-600">
+                    No team members have been added yet. Invite your first team member below.
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {teamMembers.map((member) => (
+                      <div key={member.id} className="flex items-center justify-between p-4 border rounded-lg">
+                        <div className="flex items-center gap-4">
+                          <Avatar>
+                            <AvatarFallback>{member.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <p className="font-medium">{member.name}</p>
+                            <p className="text-sm text-gray-600">{member.email}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <Badge variant={member.status === 'Active' ? 'default' : 'secondary'}>
+                            {member.status}
+                          </Badge>
+                          <Badge variant="outline">{member.role}</Badge>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setMemberToRemove(member);
+                              setShowRemoveModal(true);
+                            }}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
                         </div>
                       </div>
-                      <div className="flex items-center gap-4">
-                        <Badge variant={member.status === 'Active' ? 'default' : 'secondary'}>
-                          {member.status}
-                        </Badge>
-                        <Badge variant="outline">{member.role}</Badge>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            setMemberToRemove(member);
-                            setShowRemoveModal(true);
-                          }}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div className="space-y-4">
