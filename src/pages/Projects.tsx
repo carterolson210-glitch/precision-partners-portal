@@ -98,6 +98,8 @@ const Projects = () => {
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'kanban' | 'gantt' | 'list'>('kanban');
   const [searchQuery, setSearchQuery] = useState("");
+  const [priorityFilter, setPriorityFilter] = useState<'all' | Project['priority']>('all');
+  const [assignedFilter, setAssignedFilter] = useState<'all' | string>('all');
   const [ganttFilter, setGanttFilter] = useState<'today' | 'week' | 'month'>('month');
   const [showDialog, setShowDialog] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
@@ -152,16 +154,27 @@ const Projects = () => {
     setEditingProject(null);
   };
 
+  const assignedUsers = useMemo(() => {
+    return Array.from(new Set(projects.filter((project) => project.assigned_to).map((project) => project.assigned_to!)));
+  }, [projects]);
+
   const filteredProjects = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
-    if (!query) return projects;
-    return projects.filter((project) =>
-      project.project_name.toLowerCase().includes(query) ||
-      project.client_name.toLowerCase().includes(query) ||
-      project.address?.toLowerCase().includes(query) ||
-      project.assigned_to?.toLowerCase().includes(query)
-    );
-  }, [projects, searchQuery]);
+
+    return projects.filter((project) => {
+      const matchesQuery =
+        !query ||
+        project.project_name.toLowerCase().includes(query) ||
+        project.client_name.toLowerCase().includes(query) ||
+        project.address?.toLowerCase().includes(query) ||
+        project.assigned_to?.toLowerCase().includes(query);
+
+      const matchesPriority = priorityFilter === 'all' || project.priority === priorityFilter;
+      const matchesAssigned = assignedFilter === 'all' || project.assigned_to === assignedFilter;
+
+      return matchesQuery && matchesPriority && matchesAssigned;
+    });
+  }, [projects, searchQuery, priorityFilter, assignedFilter]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -283,12 +296,12 @@ const Projects = () => {
 
   const projectsByStatus = useMemo(() => {
     return {
-      leads: projects.filter(p => p.status === 'leads'),
-      in_progress: projects.filter(p => p.status === 'in_progress'),
-      on_hold: projects.filter(p => p.status === 'on_hold'),
-      completed: projects.filter(p => p.status === 'completed'),
+      leads: filteredProjects.filter(p => p.status === 'leads'),
+      in_progress: filteredProjects.filter(p => p.status === 'in_progress'),
+      on_hold: filteredProjects.filter(p => p.status === 'on_hold'),
+      completed: filteredProjects.filter(p => p.status === 'completed'),
     };
-  }, [projects]);
+  }, [filteredProjects]);
 
   const ganttData = useMemo(() => {
     const today = new Date();
@@ -379,25 +392,60 @@ const Projects = () => {
     <DashboardLayout title="Project Management">
       <div className="space-y-6">
         {/* Header with view toggle and add button */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as 'kanban' | 'list' | 'gantt')}>
-            <TabsList>
-              <TabsTrigger value="kanban" className="flex items-center gap-2">
-                <KanbanSquare className="w-4 h-4" />
-                Kanban Board
-              </TabsTrigger>
-              <TabsTrigger value="list" className="flex items-center gap-2">
-                <ClipboardList className="w-4 h-4" />
-                Project List
-              </TabsTrigger>
-              <TabsTrigger value="gantt" className="flex items-center gap-2">
-                <BarChart3 className="w-4 h-4" />
-                Gantt Chart
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
+        <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+            <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as 'kanban' | 'list' | 'gantt')}>
+              <TabsList>
+                <TabsTrigger value="kanban" className="flex items-center gap-2">
+                  <KanbanSquare className="w-4 h-4" />
+                  Kanban Board
+                </TabsTrigger>
+                <TabsTrigger value="list" className="flex items-center gap-2">
+                  <ClipboardList className="w-4 h-4" />
+                  Project List
+                </TabsTrigger>
+                <TabsTrigger value="gantt" className="flex items-center gap-2">
+                  <BarChart3 className="w-4 h-4" />
+                  Gantt Chart
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex items-center gap-2 rounded-full border border-card-border bg-background px-3 py-2">
+                <span className="text-sm font-medium">Filters:</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Label htmlFor="priorityFilter" className="sr-only">Priority</Label>
+                <Select value={priorityFilter} onValueChange={(value) => setPriorityFilter(value as 'all' | Project['priority'])}>
+                  <SelectTrigger className="min-w-[140px]">
+                    <SelectValue placeholder="Priority" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Priorities</SelectItem>
+                    <SelectItem value="low">Low</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex items-center gap-2">
+                <Label htmlFor="assignedFilter" className="sr-only">Assigned To</Label>
+                <Select value={assignedFilter} onValueChange={(value) => setAssignedFilter(value as 'all' | string)}>
+                  <SelectTrigger className="min-w-[160px]">
+                    <SelectValue placeholder="Assigned To" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Team Members</SelectItem>
+                    {assignedUsers.map((userName) => (
+                      <SelectItem key={userName} value={userName}>{userName}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
 
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
             <Input
               placeholder="Search projects, clients, or addresses"
               value={searchQuery}
@@ -543,128 +591,162 @@ const Projects = () => {
         {/* Kanban Board View */}
         {viewMode === 'kanban' && (
           <DragDropContext onDragEnd={handleDragEnd}>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {Object.entries(projectsByStatus).map(([status, statusProjects]) => {
-                const config = statusConfig[status as keyof typeof statusConfig];
-                const Icon = config.icon;
+            <div className="space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-card-border bg-background p-4 shadow-sm">
+                <div>
+                  <p className="text-sm font-semibold">Board Filters</p>
+                  <p className="text-xs text-muted-foreground">Search, filter, and drag cards between stages to update status instantly.</p>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge className="bg-slate-100 text-slate-800">Showing {filteredProjects.length} projects</Badge>
+                  <Badge className="bg-blue-100 text-blue-800">Leads {projectsByStatus.leads.length}</Badge>
+                  <Badge className="bg-yellow-100 text-yellow-800">In Progress {projectsByStatus.in_progress.length}</Badge>
+                  <Badge className="bg-orange-100 text-orange-800">On Hold {projectsByStatus.on_hold.length}</Badge>
+                  <Badge className="bg-green-100 text-green-800">Completed {projectsByStatus.completed.length}</Badge>
+                </div>
+              </div>
 
-                return (
-                  <div key={status} className="space-y-4">
-                    <div className={`p-4 rounded-lg ${config.bgColor} border`}>
-                      <div className="flex items-center gap-2">
-                        <Icon className="w-5 h-5" />
-                        <h3 className="font-semibold">{config.label}</h3>
-                        <Badge variant="secondary" className="ml-auto">
-                          {statusProjects.length}
-                        </Badge>
-                      </div>
-                    </div>
+              <div className="overflow-x-auto pb-4">
+                <div className="flex min-w-full justify-center gap-6">
+                  {Object.entries(projectsByStatus).map(([status, statusProjects]) => {
+                    const config = statusConfig[status as keyof typeof statusConfig];
+                    const Icon = config.icon;
 
-                    <Droppable droppableId={status}>
-                      {(provided, snapshot) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.droppableProps}
-                          className={`space-y-3 min-h-[400px] p-4 rounded-lg border-2 border-dashed transition-colors ${
-                            snapshot.isDraggingOver
-                              ? 'border-primary bg-primary/5'
-                              : 'border-gray-200'
-                          }`}
-                        >
-                          {statusProjects.map((project, index) => (
-                            <Draggable key={project.id} draggableId={project.id} index={index}>
-                              {(provided, snapshot) => (
-                                <Card
-                                  ref={provided.innerRef}
-                                  {...provided.draggableProps}
-                                  {...provided.dragHandleProps}
-                                  className={`cursor-pointer transition-shadow hover:shadow-md ${
-                                    snapshot.isDragging ? 'shadow-lg rotate-2' : ''
-                                  }`}
-                                  onClick={() => handleEdit(project)}
-                                >
-                                  <CardContent className="p-4">
-                                    <div className="space-y-3">
-                                      <div>
-                                        <h4 className="font-medium text-sm line-clamp-2">
-                                          {project.project_name}
-                                        </h4>
-                                        <p className="text-xs text-muted-foreground">
-                                          {project.client_name}
-                                        </p>
-                                      </div>
-
-                                      <div className="flex items-center gap-2">
-                                        <Badge className={jobTypeConfig[project.job_type].color}>
-                                          {jobTypeConfig[project.job_type].label}
-                                        </Badge>
-                                        <Badge className={priorityConfig[project.priority].color}>
-                                          {priorityConfig[project.priority].label}
-                                        </Badge>
-                                      </div>
-
-                                      <div className="space-y-1 text-xs text-muted-foreground">
-                                        {project.due_date && (
-                                          <div className="flex items-center gap-1">
-                                            <Calendar className="w-3 h-3" />
-                                            Due: {format(parseISO(project.due_date), 'MMM d, yyyy')}
-                                          </div>
-                                        )}
-                                        {project.assigned_to && (
-                                          <div className="flex items-center gap-1">
-                                            <User className="w-3 h-3" />
-                                            {project.assigned_to}
-                                          </div>
-                                        )}
-                                        {project.address && (
-                                          <div className="flex items-center gap-1">
-                                            <MapPin className="w-3 h-3" />
-                                            {project.address}
-                                          </div>
-                                        )}
-                                        {project.estimated_value && (
-                                          <div className="flex items-center gap-1">
-                                            <DollarSign className="w-3 h-3" />
-                                            ${project.estimated_value.toLocaleString()}
-                                          </div>
-                                        )}
-                                      </div>
-
-                                      <div className="flex justify-end gap-1">
-                                        <Button
-                                          variant="ghost"
-                                          size="sm"
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleEdit(project);
-                                          }}
-                                        >
-                                          <Edit className="w-3 h-3" />
-                                        </Button>
-                                        <Button
-                                          variant="ghost"
-                                          size="sm"
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleDelete(project.id);
-                                          }}
-                                        >
-                                          <Trash2 className="w-3 h-3" />
-                                        </Button>
-                                      </div>
-                                    </div>
-                                  </CardContent>
-                                </Card>
-                              )}
-                            </Draggable>
-                          ))}
-                          {provided.placeholder}
+                    return (
+                      <div key={status} className="w-full max-w-[340px] shrink-0 space-y-4">
+                        <div className={`p-4 rounded-xl ${config.bgColor} border border-card-border shadow-sm`}>
+                          <div className="flex items-center gap-2">
+                            <Icon className="w-5 h-5" />
+                            <div>
+                              <h3 className="font-semibold">{config.label}</h3>
+                              <p className="text-xs text-muted-foreground">{statusProjects.length} {statusProjects.length === 1 ? 'project' : 'projects'}</p>
+                            </div>
+                          </div>
                         </div>
-                      )}
-                    </Droppable>
-                  </div>
-                );
-              })}
+
+                        <Droppable droppableId={status}>
+                          {(provided, snapshot) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.droppableProps}
+                              className={`space-y-4 min-h-[420px] rounded-3xl border-2 p-4 transition-colors ${
+                                snapshot.isDraggingOver
+                                  ? 'border-primary bg-primary/5'
+                                  : 'border-border bg-background'
+                              }`}
+                            >
+                              {statusProjects.length === 0 && (
+                                <div className="rounded-2xl border border-dashed border-border bg-slate-50 p-4 text-center text-sm text-muted-foreground">
+                                  No projects in this column yet.
+                                </div>
+                              )}
+
+                              {statusProjects.map((project, index) => {
+                                const dueDate = project.due_date ? parseISO(project.due_date) : null;
+                                const daysLeft = dueDate ? differenceInDays(dueDate, new Date()) : null;
+                                const dueLabel = dueDate
+                                  ? daysLeft < 0
+                                    ? `Overdue by ${Math.abs(daysLeft)} day${Math.abs(daysLeft) === 1 ? '' : 's'}`
+                                    : `${daysLeft} day${daysLeft === 1 ? '' : 's'} left`
+                                  : 'No due date';
+
+                                return (
+                                  <Draggable key={project.id} draggableId={project.id} index={index}>
+                                    {(provided, snapshot) => (
+                                      <Card
+                                        ref={provided.innerRef}
+                                        {...provided.draggableProps}
+                                        {...provided.dragHandleProps}
+                                        className={`cursor-grab transition-shadow ${
+                                          snapshot.isDragging ? 'shadow-2xl scale-105' : 'shadow-sm'
+                                        }`}
+                                        onClick={() => handleEdit(project)}
+                                      >
+                                        <CardContent className="p-4">
+                                          <div className="space-y-3">
+                                            <div>
+                                              <h4 className="font-semibold text-base line-clamp-2">{project.project_name}</h4>
+                                              <p className="text-xs text-muted-foreground">{project.client_name}</p>
+                                            </div>
+
+                                            <div className="grid gap-2 sm:grid-cols-2">
+                                              <Badge className={jobTypeConfig[project.job_type].color}>
+                                                {jobTypeConfig[project.job_type].label}
+                                              </Badge>
+                                              <Badge className={priorityConfig[project.priority].color}>
+                                                {priorityConfig[project.priority].label}
+                                              </Badge>
+                                            </div>
+
+                                            <div className="space-y-1 text-xs text-muted-foreground">
+                                              {project.due_date && (
+                                                <div className="flex items-center gap-1">
+                                                  <Calendar className="w-3 h-3" />
+                                                  {format(dueDate!, 'MMM d, yyyy')} · {dueLabel}
+                                                </div>
+                                              )}
+                                              {project.assigned_to && (
+                                                <div className="flex items-center gap-1">
+                                                  <User className="w-3 h-3" />
+                                                  {project.assigned_to}
+                                                </div>
+                                              )}
+                                              {project.estimated_value && (
+                                                <div className="flex items-center gap-1">
+                                                  <DollarSign className="w-3 h-3" />
+                                                  ${project.estimated_value.toLocaleString()}
+                                                </div>
+                                              )}
+                                            </div>
+
+                                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                              {project.address && (
+                                                <div className="flex items-center gap-1">
+                                                  <MapPin className="w-3 h-3" />
+                                                  {project.address}
+                                                </div>
+                                              )}
+                                            </div>
+
+                                            <div className="flex flex-wrap items-center gap-2 pt-2">
+                                              <Button
+                                                variant="secondary"
+                                                size="sm"
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  handleEdit(project);
+                                                }}
+                                              >
+                                                Edit
+                                              </Button>
+                                              <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  handleDelete(project.id);
+                                                }}
+                                              >
+                                                Delete
+                                              </Button>
+                                            </div>
+                                          </div>
+                                        </CardContent>
+                                      </Card>
+                                    )}
+                                  </Draggable>
+                                );
+                              })}
+
+                              {provided.placeholder}
+                            </div>
+                          )}
+                        </Droppable>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
           </DragDropContext>
         )}
