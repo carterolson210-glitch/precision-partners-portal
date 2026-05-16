@@ -1,6 +1,7 @@
 import { ReactNode, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useTour } from "@/components/TourProvider";
 import {
   LayoutDashboard, Calculator, Wrench, Calendar, ClipboardList,
   FolderOpen, DollarSign, FileText, BookOpen, Users, BarChart3,
@@ -16,12 +17,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const sidebarItems = [
-  { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
+  { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard", tourId: "tour-top-nav" },
   { label: "Project Estimator", icon: Calculator, path: "/dashboard/estimator" },
-  { label: "Load Calculator", icon: Wrench, path: "/dashboard/calculator" },
-  { label: "Scheduling", icon: Calendar, path: "/dashboard/scheduling" },
+  { label: "Load Calculator", icon: Wrench, path: "/dashboard/calculator", tourId: "tour-load-calculator-link" },
+  { label: "Scheduling", icon: Calendar, path: "/dashboard/scheduling", tourId: "tour-scheduling-link" },
   { label: "Clients", icon: Users, path: "/dashboard/clients" },
-  { label: "Projects", icon: ClipboardList, path: "/dashboard/projects" },
+  { label: "Projects", icon: ClipboardList, path: "/dashboard/projects", tourId: "tour-projects-link" },
   { label: "Report Builder", icon: FileText, path: "/dashboard/reports" },
   { label: "Documents", icon: FolderOpen, path: "/dashboard/documents" },
   { label: "Invoicing", icon: DollarSign, path: "/dashboard/invoicing" },
@@ -45,6 +46,7 @@ const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
+  const { startTour } = useTour();
 
   const handleLogout = async () => {
     await signOut();
@@ -56,7 +58,7 @@ const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
   return (
     <div className="min-h-screen bg-section-alt">
       {/* Top Nav */}
-      <header className="fixed top-0 left-0 right-0 h-[var(--nav-height)] bg-background border-b border-card-border z-[1000] flex items-center">
+      <header id="tour-top-nav" className="fixed top-0 left-0 right-0 h-[var(--nav-height)] bg-background border-b border-card-border z-[1000] flex items-center">
         <div className="flex items-center justify-between w-full px-4">
           <div className="flex items-center gap-3">
             <button
@@ -79,7 +81,7 @@ const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
             <button className="p-2 hover:bg-section-alt rounded-lg transition-colors" aria-label="Notifications">
               <Bell className="w-5 h-5 text-caption" />
             </button>
-            <Link to="/dashboard/settings" className="p-2 hover:bg-section-alt rounded-lg transition-colors" aria-label="Settings">
+            <Link id="tour-settings-link" to="/dashboard/settings" className="p-2 hover:bg-section-alt rounded-lg transition-colors" aria-label="Settings">
               <Settings className="w-5 h-5 text-caption" />
             </Link>
             <DropdownMenu>
@@ -96,6 +98,7 @@ const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
                 <DropdownMenuItem onSelect={() => navigate("/dashboard")}>Profile</DropdownMenuItem>
                 <DropdownMenuItem onSelect={() => navigate("/dashboard/analytics")}>Notifications</DropdownMenuItem>
                 <DropdownMenuItem onSelect={() => navigate("/dashboard/settings")}>Settings</DropdownMenuItem>
+                <DropdownMenuItem onSelect={startTour}>Feature Tour</DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onSelect={handleLogout}>Sign Out</DropdownMenuItem>
               </DropdownMenuContent>
@@ -127,6 +130,7 @@ const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
               <Link
                 key={item.path}
                 to={item.path}
+                data-tour-id={item.tourId}
                 onClick={() => setSidebarOpen(false)}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-[14px] font-medium transition-colors ${
                   isActive

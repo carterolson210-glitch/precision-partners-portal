@@ -40,6 +40,8 @@ import SignDocument from "./pages/SignDocument";
 import AuthCallback from "./pages/AuthCallback";
 import Settings from "./pages/Settings";
 import Onboarding from "./pages/Onboarding";
+import { TourProvider } from "@/components/TourProvider";
+import { featureTourSteps } from "@/lib/featureTour";
 
 
 const queryClient = new QueryClient();
@@ -63,7 +65,8 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Routes>
+          <TourProvider steps={featureTourSteps}>
+            <Routes>
             {/* Public */}
             <Route path="/" element={<Index />} />
             <Route path="/pricing" element={<Pricing />} />
@@ -105,6 +108,7 @@ const App = () => (
 
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </TourProvider>
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>

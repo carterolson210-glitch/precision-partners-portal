@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
 import DashboardCard from "@/components/DashboardCard";
@@ -13,6 +13,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
 import { useAuth } from "@/hooks/useAuth";
+import { useTour } from "@/components/TourProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -102,8 +103,7 @@ const DashboardHome = () => {
   const dashboard = useDashboardData(user?.id);
   const [showWelcomeBanner, setShowWelcomeBanner] = useState(false);
   const [showTourPrompt, setShowTourPrompt] = useState(false);
-  const [tourActive, setTourActive] = useState(false);
-  const [tourStep, setTourStep] = useState(0);
+  const { startTour } = useTour();
 
   useEffect(() => {
     if (searchParams.get("checkout") === "success") {
@@ -128,39 +128,6 @@ const DashboardHome = () => {
       sessionStorage.removeItem("onboardingQuickTour");
     }
   }, [location.state]);
-
-  const tourSteps = [
-    {
-      title: "Your dashboard at a glance",
-      description: "Quickly see your active stamps, referrals, purchases, and AI conversations in one place.",
-    },
-    {
-      title: "Manage subscriptions",
-      description: "Open the billing area to update plans and billing details when needed.",
-    },
-    {
-      title: "Track projects and client work",
-      description: "Use the project and scheduling sections to stay on top of tasks and appointments.",
-    },
-  ];
-
-  const handleStartTour = () => {
-    setTourActive(true);
-    setShowTourPrompt(false);
-    setTourStep(0);
-  };
-
-  const handleNextTourStep = () => {
-    setTourStep((current) => Math.min(current + 1, tourSteps.length - 1));
-  };
-
-  const handlePrevTourStep = () => {
-    setTourStep((current) => Math.max(current - 1, 0));
-  };
-
-  const handleFinishTour = () => {
-    setTourActive(false);
-  };
 
   const greeting = user?.user_metadata?.full_name
     ? `Welcome back, ${user.user_metadata.full_name.split(" ")[0]}`
@@ -193,7 +160,9 @@ const DashboardHome = () => {
               <p className="text-sm text-slate-400">Start the walkthrough to see the most important dashboard features.</p>
             </div>
             <div className="flex items-center gap-3">
-              <Button variant="outline" size="sm" onClick={handleStartTour}>Start tour</Button>
+              <Button variant="outline" size="sm" onClick={() => { startTour(); setShowTourPrompt(false); }}>
+                Start tour
+              </Button>
               <button type="button" className="text-slate-400 hover:text-white" onClick={() => setShowTourPrompt(false)}>
                 Dismiss
               </button>
@@ -206,27 +175,6 @@ const DashboardHome = () => {
         <SubscriptionBadge />
       </div>
 
-      {tourActive && (
-        <div className="mb-[var(--card-gap)] rounded-3xl border border-amber-400/20 bg-slate-950/95 p-6 shadow-xl">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-              <p className="text-amber-300 uppercase tracking-[0.3em] text-xs font-semibold">Quick Tour</p>
-              <h2 className="text-2xl font-bold text-white">{tourSteps[tourStep].title}</h2>
-              <p className="mt-2 text-slate-300 max-w-2xl">{tourSteps[tourStep].description}</p>
-            </div>
-            <div className="flex flex-wrap items-center gap-3">
-              <Button variant="outline" size="sm" onClick={handlePrevTourStep} disabled={tourStep === 0}>
-                Previous
-              </Button>
-              {tourStep < tourSteps.length - 1 ? (
-                <Button variant="ghost" size="sm" onClick={handleNextTourStep}>Next</Button>
-              ) : (
-                <Button size="sm" onClick={handleFinishTour}>Finish tour</Button>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Quick Stats — real counts from Supabase */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[var(--card-gap)] mb-[var(--card-gap)]">
