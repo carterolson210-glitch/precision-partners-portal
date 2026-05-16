@@ -61,6 +61,10 @@ const Register = () => {
       toast.error(error.message);
     } else {
       // Create referral record if user came via referral link
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem("newUserSignup", "true");
+      }
+
       if (referrerId && signUpData?.user?.id) {
         await supabase.from("referrals").insert({
           referrer_id: referrerId,

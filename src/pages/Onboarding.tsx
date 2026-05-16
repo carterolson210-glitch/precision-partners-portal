@@ -96,6 +96,7 @@ const Onboarding = () => {
   const [connectOutlook, setConnectOutlook] = useState(false);
   const [invitees, setInvitees] = useState<Invitee[]>([{ email: "", role: "structural" }]);
   const [tutorialChoice, setTutorialChoice] = useState<"yes" | "skip" | "">("");
+  const [isNewSignup, setIsNewSignup] = useState(false);
 
   const displayName = useMemo(() => {
     return user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Engineer";
@@ -107,6 +108,19 @@ const Onboarding = () => {
       navigate("/dashboard", { replace: true });
     }
   }, [navigate]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (window.localStorage.getItem("newUserSignup") === "true") {
+      setIsNewSignup(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (step === 5 && tutorialChoice === "" && isNewSignup) {
+      setTutorialChoice("yes");
+    }
+  }, [step, tutorialChoice, isNewSignup]);
 
   const currentStep = step + 1;
   const progress = ((currentStep - 1) / (onboardingSteps.length - 1)) * 100;
@@ -160,11 +174,13 @@ const Onboarding = () => {
 
   const finishOnboarding = () => {
     if (typeof window !== "undefined") {
+      const isNewUser = window.localStorage.getItem("newUserSignup") === "true";
       localStorage.setItem("onboardingComplete", "true");
       sessionStorage.setItem("onboardingWelcome", "true");
-      if (tutorialChoice === "yes") {
+      if (tutorialChoice === "yes" || isNewUser) {
         sessionStorage.setItem("onboardingQuickTour", "true");
       }
+      window.localStorage.removeItem("newUserSignup");
     }
     navigate("/dashboard", { replace: true });
   };

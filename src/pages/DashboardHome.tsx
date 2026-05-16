@@ -102,7 +102,6 @@ const DashboardHome = () => {
   const { user, subscription, refreshSubscription } = useAuth();
   const dashboard = useDashboardData(user?.id);
   const [showWelcomeBanner, setShowWelcomeBanner] = useState(false);
-  const [showTourPrompt, setShowTourPrompt] = useState(false);
   const { startTour } = useTour();
 
   useEffect(() => {
@@ -124,10 +123,10 @@ const DashboardHome = () => {
 
     const tourFlag = sessionStorage.getItem("onboardingQuickTour");
     if (tourFlag) {
-      setShowTourPrompt(true);
+      startTour();
       sessionStorage.removeItem("onboardingQuickTour");
     }
-  }, [location.state]);
+  }, [location.state, startTour]);
 
   const greeting = user?.user_metadata?.full_name
     ? `Welcome back, ${user.user_metadata.full_name.split(" ")[0]}`
@@ -149,24 +148,6 @@ const DashboardHome = () => {
             >
               Dismiss
             </button>
-          </div>
-        </div>
-      )}
-      {showTourPrompt && (
-        <div className="mb-[var(--card-gap)] rounded-3xl border border-slate-700 bg-slate-900/90 px-6 py-4 text-slate-100 shadow-sm">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="font-semibold">A quick tour is ready.</p>
-              <p className="text-sm text-slate-400">Start the walkthrough to see the most important dashboard features.</p>
-            </div>
-            <div className="flex items-center gap-3">
-              <Button variant="outline" size="sm" onClick={() => { startTour(); setShowTourPrompt(false); }}>
-                Start tour
-              </Button>
-              <button type="button" className="text-slate-400 hover:text-white" onClick={() => setShowTourPrompt(false)}>
-                Dismiss
-              </button>
-            </div>
           </div>
         </div>
       )}
