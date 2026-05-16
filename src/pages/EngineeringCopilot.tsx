@@ -67,6 +67,13 @@ const PROMPT_CATEGORIES = [
 
 /* ───── streaming helper ───── */
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/engineering-chat`;
+const FREE_DAILY_MESSAGE_LIMIT = 5;
+
+const getTodayUtcStart = () => {
+  const today = new Date();
+  today.setUTCHours(0, 0, 0, 0);
+  return today.toISOString();
+};
 
 async function streamChat({
   messages,
@@ -137,11 +144,11 @@ const LockedPreview = () => (
       </div>
       <h2 className="text-xl font-bold text-foreground font-display">Engineering Copilot</h2>
       <p className="text-muted-foreground text-sm leading-relaxed">
-        Get instant AI-powered answers to structural calculations, building code questions,
-        material selection, cost estimation, and more. Available on Growing and Enterprise plans.
+        Free users receive 5 AI engineering messages per day. After the daily limit is reached,
+        you must wait 24 hours or upgrade to Solo & Small Firms or higher for unlimited access.
       </p>
       <Button variant="gold" onClick={() => window.location.href = "/pricing"}>
-        Upgrade to Unlock
+        Upgrade to Solo Plan
       </Button>
     </div>
   </div>
@@ -152,8 +159,6 @@ const EngineeringCopilot = () => {
   const { user, subscription } = useAuth();
   const { toast } = useToast();
 
-  const hasAccess = subscription.tierLevel >= 2;
-
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConvId, setActiveConvId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Msg[]>([]);
@@ -161,7 +166,41 @@ const EngineeringCopilot = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPrompts, setShowPrompts] = useState(false);
   const [showHistory, setShowHistory] = useState(true);
+  const [freeMessagesLeft, setFreeMessagesLeft] = useState(FREE_DAILY_MESSAGE_LIMIT);
+  const [freeUsageLoading, setFreeUsageLoading] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  const isPaid = subscription.tierLevel >= 1;
+  const hasAccess = isPaid || freeMessagesLeft > 0;
+
+  const loadDailyUsage = useCallback(async () => {
+    if (!user) {
+      setFreeMessagesLeft(FREE_DAILY_MESSAGE_LIMIT);
+      setFreeUsageLoading(false);
+      return;
+    }
+
+    setFreeUsageLoading(true);
+    const todayStart = getTodayUtcStart();
+
+    const { count, error } = await supabase
+      .from("ai_chat_messages")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", user.id)
+      .eq("role", "user")
+      .gte("created_at", todayStart);
+
+    if (error) {
+      console.error("Failed to load AI usage", error);
+      setFreeMessagesLeft(FREE_DAILY_MESSAGE_LIMIT);
+      setFreeUsageLoading(false);
+      return;
+    }
+
+    const usage = typeof count === "number" ? count : 0;
+    setFreeMessagesLeft(Math.max(0, FREE_DAILY_MESSAGE_LIMIT - usage));
+    setFreeUsageLoading(false);
+  }, [user]);
 
   /* load conversations */
   useEffect(() => {
@@ -174,6 +213,10 @@ const EngineeringCopilot = () => {
         if (data) setConversations(data);
       });
   }, [user]);
+
+  useEffect(() => {
+    loadDailyUsage();
+  }, [loadDailyUsage]);
 
   /* load messages when conversation changes */
   useEffect(() => {
@@ -208,6 +251,17 @@ const EngineeringCopilot = () => {
 
   const sendMessage = useCallback(async (text: string) => {
     if (!text.trim() || isLoading || !user) return;
+
+    if (!isPaid && freeMessagesLeft <= 0) {
+      toast({
+        title: "Daily AI limit reached",
+        description:
+          "You've used your 5 free engineering AI messages today. Wait 24 hours for more free messages or upgrade to Solo & Small Firms or higher for unlimited access.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setInput("");
     const userMsg: Msg = { role: "user", content: text.trim() };
 
@@ -256,6 +310,7 @@ const EngineeringCopilot = () => {
           // update conversation timestamp
           await supabase.from("ai_conversations").update({ updated_at: new Date().toISOString() }).eq("id", convId!);
         }
+        await loadDailyUsage();
       },
       onError: (status, msg) => {
         setIsLoading(false);
@@ -339,6 +394,12 @@ const EngineeringCopilot = () => {
               <Plus className="w-3.5 h-3.5 mr-1" /> New Chat
             </Button>
           </div>
+          {!isPaid && !freeUsageLoading && freeMessagesLeft > 0 && (
+            <div className="px-4 py-3 border-b border-card-border bg-amber-50 text-amber-900 text-sm">
+              You have <span className="font-semibold">{freeMessagesLeft}</span> free AI message{freeMessagesLeft !== 1 ? "s" : ""} left today.
+              Upgrade to Solo & Small Firms or higher for unlimited Engineering Copilot access.
+            </div>
+          )}
 
           {/* messages */}
           <ScrollArea className="flex-1 p-4">
@@ -404,7 +465,7 @@ const EngineeringCopilot = () => {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Ask about structural loads, building codes, materials…"
-                disabled={isLoading}
+                disabled={isLoading || (!isPaid && freeMessagesLeft <= 0)}
                 className="flex-1"
               />
               <Button type="submit" disabled={isLoading || !input.trim()} size="icon">

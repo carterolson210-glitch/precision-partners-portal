@@ -24,6 +24,7 @@ const tiers = [
       "Document storage up to 5GB",
       "Invoicing for up to 10 active clients",
       "Basic analytics dashboard",
+      "AI Engineering Copilot",
       "Email support",
     ],
     cta: "Start 14-Day Free Trial",
