@@ -24,7 +24,7 @@ interface LoadBreakdown {
   kw: number;
 }
 
-export default function ElectricalLoadCalculator() {
+export default function ElectricalLoadCalculator({ onSave }: { onSave?: () => void }) {
   const { user } = useAuth();
   const [inputs, setInputs] = useState<ElectricalLoadInputs>({
     squareFootage: 2000,
@@ -121,6 +121,9 @@ export default function ElectricalLoadCalculator() {
       if (error) throw error;
 
       toast.success("Load calculation saved successfully!");
+      if (onSave) {
+        onSave();
+      }
     } catch (error) {
       console.error("Error saving calculation:", error);
       toast.error("Failed to save calculation");

@@ -1,106 +1,66 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
+import { format, parseISO, isWithinInterval, addDays, differenceInMinutes, startOfDay, endOfDay, isAfter } from "date-fns";
 import DashboardLayout from "@/components/DashboardLayout";
 import DashboardCard from "@/components/DashboardCard";
 import EmptyState from "@/components/EmptyState";
 import LicenseExpirationBanner from "@/components/LicenseExpirationBanner";
 import SubscriptionBadge from "@/components/SubscriptionBadge";
-import {
-  BarChart3, Calendar, ClipboardList, DollarSign,
-  FolderOpen, Users, Bot, Stamp, Gift, Download,
-} from "lucide-react";
-import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-} from "recharts";
+import { ClipboardList, Bot, Stamp, Gift, Download } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useTour } from "@/components/TourProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
-/* ─── Real data hooks ─── */
+interface ProjectSummary {
+  id: string;
+  project_name: string;
+  status: string;
+  due_date: string | null;
+  estimated_value: number | null;
+}
 
-const useDashboardData = (userId: string | undefined) => {
-  const [data, setData] = useState({
-    peStampCount: 0,
-    referralCount: 0,
-    purchaseCount: 0,
-    conversationCount: 0,
-    recentReferrals: [] as { month: string; count: number }[],
-    recentPurchases: [] as { template_name: string; created_at: string }[],
-    expiringStamps: [] as { label: string; state: string; expiration_date: string }[],
-    loading: true,
-  });
+interface ScheduleSummary {
+  id: string;
+  client_name: string;
+  project_address: string;
+  job_type: string;
+  assigned_to?: string;
+  start_time: string;
+  end_time: string;
+  notes?: string;
+}
 
-  useEffect(() => {
-    if (!userId) return;
-    const load = async () => {
-      const [stamps, referrals, purchases, conversations] = await Promise.all([
-        supabase.from("pe_stamps").select("id, label, state, expiration_date"),
-        supabase.from("referrals").select("id, created_at"),
-        supabase
-          .from("template_purchases")
-          .select("id, template_name, created_at")
-          .order("created_at", { ascending: false })
-          .limit(5),
-        supabase.from("ai_conversations").select("id"),
-      ]);
+interface LoadCalculationSummary {
+  id: string;
+  project_id?: string;
+  project_name?: string;
+  calculator_type?: string;
+  primary_result?: string;
+  created_at: string;
+}
 
-      // Build referral chart data (last 6 months)
-      const now = new Date();
-      const months: { month: string; count: number }[] = [];
-      for (let i = 5; i >= 0; i--) {
-        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-        const label = d.toLocaleDateString("en-US", { month: "short" });
-        const count = (referrals.data || []).filter((r) => {
-          const rd = new Date(r.created_at!);
-          return rd.getMonth() === d.getMonth() && rd.getFullYear() === d.getFullYear();
-        }).length;
-        months.push({ month: label, count });
-      }
-
-      // Stamps expiring within 90 days
-      const expiring = (stamps.data || [])
-        .filter((s) => {
-          const days = Math.ceil((new Date(s.expiration_date).getTime() - Date.now()) / 86400000);
-          return days >= 0 && days <= 90;
-        })
-        .sort((a, b) => new Date(a.expiration_date).getTime() - new Date(b.expiration_date).getTime());
-
-      setData({
-        peStampCount: stamps.data?.length ?? 0,
-        referralCount: referrals.data?.length ?? 0,
-        purchaseCount: purchases.data?.length ?? 0,
-        conversationCount: conversations.data?.length ?? 0,
-        recentReferrals: months,
-        recentPurchases: (purchases.data as any[]) || [],
-        expiringStamps: expiring as any[],
-        loading: false,
-      });
-    };
-    load();
-  }, [userId]);
-
-  return data;
-};
-
-/* ─── Empty Chart State ─── */
-const ChartEmptyState = ({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) => (
-  <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
-    <div className="w-16 h-16 bg-section-alt rounded-2xl flex items-center justify-center mb-4">
-      {icon}
-    </div>
-    <h3 className="text-[16px] font-semibold text-body-text mb-1">{title}</h3>
-    <p className="description-text text-[14px] max-w-xs">{description}</p>
-  </div>
-);
-
-/* ─── Main Component ─── */
 const DashboardHome = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, subscription, refreshSubscription } = useAuth();
-  const dashboard = useDashboardData(user?.id);
+  const { user, refreshSubscription } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    todayAppointments: 0,
+    nextAppointment: null as ScheduleSummary | null,
+    activeProjects: 0,
+    atRiskProjects: 0,
+    upcomingDeadlines: [] as ProjectSummary[],
+    unbilledAmount: 0,
+    loadCalculations: [] as LoadCalculationSummary[],
+    pipeline: [] as { label: string; value: number }[],
+    scheduleSummary: [] as { day: string; events: number }[],
+    teamUtilization: [] as { name: string; hours: number; percent: number }[],
+    recentActivity: { title: string; client: string; when: string }[],
+  });
   const [showWelcomeBanner, setShowWelcomeBanner] = useState(false);
   const { startTour } = useTour();
 
@@ -128,9 +88,149 @@ const DashboardHome = () => {
     }
   }, [location.state, startTour]);
 
+  useEffect(() => {
+    if (!user) return;
+
+    const loadDashboard = async () => {
+      setLoading(true);
+      const todayStart = startOfDay(new Date()).toISOString();
+      const todayEnd = endOfDay(new Date()).toISOString();
+
+      const [schedulesRes, projectsRes, invoicesRes, calculationsRes] = await Promise.all([
+        supabase
+          .from("schedules")
+          .select("id, client_name, project_address, job_type, assigned_to, start_time, end_time, notes")
+          .order("start_time", { ascending: true }),
+        supabase
+          .from("projects")
+          .select("id, project_name, status, due_date, estimated_value"),
+        supabase
+          .from("invoices")
+          .select("id, total, status"),
+        supabase
+          .from("load_calculations")
+          .select("id, project_id, project_name, calculator_type, primary_result, created_at")
+          .order("created_at", { ascending: false })
+          .limit(5),
+      ]);
+
+      const schedules = schedulesRes.data || [];
+      const projects = projectsRes.data || [];
+      const invoices = invoicesRes.data || [];
+      const calculations = calculationsRes.data || [];
+
+      const todayAppointments = schedules.filter((schedule) => {
+        const start = parseISO(schedule.start_time);
+        return isWithinInterval(start, { start: parseISO(todayStart), end: parseISO(todayEnd) });
+      });
+
+      const upcomingAppointments = schedules
+        .filter((schedule) => isAfter(parseISO(schedule.start_time), new Date()))
+        .sort((a, b) => parseISO(a.start_time).getTime() - parseISO(b.start_time).getTime());
+
+      const nextAppointment = upcomingAppointments[0] || null;
+
+      const upcomingDeadlines = projects
+        .filter((project) => project.due_date)
+        .filter((project) => {
+          const due = parseISO(project.due_date!);
+          return isWithinInterval(due, { start: new Date(), end: addDays(new Date(), 7) });
+        })
+        .slice(0, 5) as ProjectSummary[];
+
+      const atRiskProjects = projects.filter((project) => {
+        if (!project.due_date) return false;
+        const due = parseISO(project.due_date);
+        const days = differenceInMinutes(due, new Date()) / 1440;
+        return days >= 0 && days <= 14;
+      }).length;
+
+      const pipeline = [
+        { label: "Inquiry", value: projects.filter((project) => project.status === "inquiry").length },
+        { label: "Active", value: projects.filter((project) => project.status === "active").length },
+        { label: "Under Review", value: projects.filter((project) => project.status === "under_review").length },
+        { label: "Permit Submitted", value: projects.filter((project) => project.status === "permit_submitted").length },
+        { label: "Construction Admin", value: projects.filter((project) => project.status === "construction_admin").length },
+      ];
+
+      const scheduleSummary = Array.from({ length: 7 }).map((_, idx) => {
+        const day = addDays(startOfDay(new Date()), idx);
+        const count = schedules.filter((schedule) =>
+          isWithinInterval(parseISO(schedule.start_time), { start: day, end: endOfDay(day) })
+        ).length;
+        return { day: format(day, "EEE"), events: count };
+      });
+
+      const teamUtilization = Object.entries(
+        schedules.reduce<Record<string, number>>((acc, schedule) => {
+          if (!schedule.assigned_to) return acc;
+          const start = parseISO(schedule.start_time);
+          const end = parseISO(schedule.end_time);
+          const hours = Math.max(0, differenceInMinutes(end, start) / 60);
+          acc[schedule.assigned_to] = (acc[schedule.assigned_to] || 0) + hours;
+          return acc;
+        }, {})
+      ).map(([name, hours]) => ({ name, hours, percent: Math.min(100, Math.round((hours / 40) * 100)) }));
+
+      const recentActivity = upcomingAppointments.slice(0, 5).map((schedule) => ({
+        title: schedule.job_type.replace(/_/g, " "),
+        client: schedule.client_name,
+        when: format(parseISO(schedule.start_time), "MMM d, h:mm a"),
+      }));
+
+      const unbilledAmount = invoices
+        .filter((invoice) => invoice.status !== "paid")
+        .reduce((sum, invoice) => sum + (Number(invoice.total) || 0), 0);
+
+      setStats({
+        todayAppointments: todayAppointments.length,
+        nextAppointment,
+        activeProjects: projects.length,
+        atRiskProjects,
+        upcomingDeadlines,
+        unbilledAmount,
+        loadCalculations: calculations,
+        pipeline,
+        scheduleSummary,
+        teamUtilization,
+        recentActivity,
+      });
+      setLoading(false);
+    };
+
+    loadDashboard();
+  }, [user]);
+
   const greeting = user?.user_metadata?.full_name
     ? `Welcome back, ${user.user_metadata.full_name.split(" ")[0]}`
     : "Welcome back";
+
+  const nextAppointmentLabel = useMemo(() => {
+    if (!stats.nextAppointment) return "No upcoming appointments";
+    return `${stats.nextAppointment.job_type.replace(/_/g, " ")} · ${format(parseISO(stats.nextAppointment.start_time), "h:mm a")}`;
+  }, [stats.nextAppointment]);
+
+  const briefingText = useMemo(() => {
+    const bullets = [];
+    bullets.push(`You have ${stats.todayAppointments} client meetings today — briefs attached.`);
+    if (stats.upcomingDeadlines.length > 0) {
+      const nextDeadline = stats.upcomingDeadlines[0];
+      const days = Math.max(
+        1,
+        Math.round(differenceInMinutes(parseISO(nextDeadline.due_date || new Date().toISOString()), new Date()) / 1440)
+      );
+      bullets.push(`Project ${nextDeadline.project_name} has a permit deadline in ${days} days.`);
+    } else {
+      bullets.push("No permit deadlines in the next 7 days.");
+    }
+    bullets.push(`${stats.loadCalculations.length} load calculations ready to add to permit reports.`);
+    bullets.push(
+      stats.teamUtilization.length > 0
+        ? `${stats.teamUtilization[0].name} is booked ${stats.teamUtilization[0].percent}% this week.`
+        : "Team utilization will appear once schedules are added."
+    );
+    return bullets;
+  }, [stats]);
 
   return (
     <DashboardLayout title={greeting}>
@@ -141,177 +241,177 @@ const DashboardHome = () => {
               <p className="font-semibold">Welcome aboard!</p>
               <p className="text-sm text-amber-100/80">Your workspace setup is complete and ready for use.</p>
             </div>
-            <button
-              type="button"
-              className="text-amber-100 hover:text-white"
-              onClick={() => setShowWelcomeBanner(false)}
-            >
+            <button type="button" className="text-amber-100 hover:text-white" onClick={() => setShowWelcomeBanner(false)}>
               Dismiss
             </button>
           </div>
         </div>
       )}
+
       <LicenseExpirationBanner />
       <div className="mb-[var(--card-gap)]">
         <SubscriptionBadge />
       </div>
 
-
-      {/* Quick Stats — real counts from Supabase */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[var(--card-gap)] mb-[var(--card-gap)]">
-        <DashboardCard title="PE Stamps">
-          <div className="flex items-center gap-3 mt-2">
-            <Stamp className="w-8 h-8 text-steel" />
-            {dashboard.loading ? (
-              <span className="caption-text text-[14px]">Loading…</span>
-            ) : dashboard.peStampCount > 0 ? (
-              <div>
-                <span className="text-[28px] font-bold text-body-text font-display">{dashboard.peStampCount}</span>
-                <span className="caption-text text-[13px] ml-2">license{dashboard.peStampCount !== 1 ? "s" : ""} on file</span>
-              </div>
-            ) : (
-              <span className="caption-text text-[14px]">No stamps added yet</span>
-            )}
+      <div className="grid gap-4 lg:grid-cols-4 mb-[var(--card-gap)]">
+        <DashboardCard title="Today's Appointments">
+          <div className="space-y-2">
+            <p className="text-4xl font-semibold text-body-text">{loading ? "—" : stats.todayAppointments}</p>
+            <p className="text-sm text-muted-foreground">Next: {loading ? "Loading…" : nextAppointmentLabel}</p>
           </div>
         </DashboardCard>
 
-        <DashboardCard title="Referrals Sent">
-          <div className="flex items-center gap-3 mt-2">
-            <Gift className="w-8 h-8 text-steel" />
-            {dashboard.loading ? (
-              <span className="caption-text text-[14px]">Loading…</span>
-            ) : (
-              <div>
-                <span className="text-[28px] font-bold text-body-text font-display">{dashboard.referralCount}</span>
-                <span className="caption-text text-[13px] ml-2">referral{dashboard.referralCount !== 1 ? "s" : ""}</span>
-              </div>
-            )}
+        <DashboardCard title="Active Projects">
+          <div className="space-y-2">
+            <p className="text-4xl font-semibold text-body-text">{loading ? "—" : stats.activeProjects}</p>
+            <p className="text-sm text-muted-foreground">{stats.atRiskProjects} projects at risk</p>
           </div>
         </DashboardCard>
 
-        <DashboardCard title="Copilot Chats">
-          <div className="flex items-center gap-3 mt-2">
-            <Bot className="w-8 h-8 text-steel" />
-            {dashboard.loading ? (
-              <span className="caption-text text-[14px]">Loading…</span>
-            ) : dashboard.conversationCount > 0 ? (
-              <div>
-                <span className="text-[28px] font-bold text-body-text font-display">{dashboard.conversationCount}</span>
-                <span className="caption-text text-[13px] ml-2">conversation{dashboard.conversationCount !== 1 ? "s" : ""}</span>
-              </div>
-            ) : (
-              <span className="caption-text text-[14px]">No conversations yet</span>
-            )}
+        <DashboardCard title="Unbilled Revenue">
+          <div className="space-y-2">
+            <p className="text-4xl font-semibold text-body-text">{loading ? "—" : `$${stats.unbilledAmount.toLocaleString()}`}</p>
+            <p className="text-sm text-muted-foreground">Pending invoices and hours</p>
           </div>
         </DashboardCard>
 
-        <DashboardCard title="Template Purchases">
-          <div className="flex items-center gap-3 mt-2">
-            <Download className="w-8 h-8 text-steel" />
-            {dashboard.loading ? (
-              <span className="caption-text text-[14px]">Loading…</span>
-            ) : dashboard.purchaseCount > 0 ? (
-              <div>
-                <span className="text-[28px] font-bold text-body-text font-display">{dashboard.purchaseCount}</span>
-                <span className="caption-text text-[13px] ml-2">template{dashboard.purchaseCount !== 1 ? "s" : ""}</span>
-              </div>
-            ) : (
-              <span className="caption-text text-[14px]">No purchases yet</span>
-            )}
+        <DashboardCard title="Deadlines in 7 days">
+          <div className="space-y-2">
+            <p className="text-4xl font-semibold text-body-text">{loading ? "—" : stats.upcomingDeadlines.length}</p>
+            <p className="text-sm text-muted-foreground">Projects due soon</p>
           </div>
         </DashboardCard>
       </div>
 
-      {/* Main Sections */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-[var(--card-gap)]">
-        {/* Referral Activity Chart */}
-        <DashboardCard title="Referral Activity (Last 6 Months)">
-          {dashboard.loading ? (
-            <p className="caption-text text-[14px] py-8 text-center">Loading…</p>
-          ) : dashboard.referralCount > 0 ? (
-            <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={dashboard.recentReferrals} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="month" tick={{ fontSize: 12 }} stroke="hsl(var(--muted-foreground))" />
-                <YAxis allowDecimals={false} tick={{ fontSize: 12 }} stroke="hsl(var(--muted-foreground))" />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "hsl(var(--card))",
-                    border: "1px solid hsl(var(--border))",
-                    borderRadius: "8px",
-                    fontSize: 13,
-                  }}
-                />
-                <Bar dataKey="count" name="Referrals" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          ) : (
-            <ChartEmptyState
-              icon={<Gift className="w-8 h-8 text-steel" />}
-              title="No referrals yet"
-              description="Share your referral link to invite other engineering firms and earn free billing credits."
-            />
-          )}
+      <div className="grid gap-4 xl:grid-cols-[1.4fr_0.6fr] mb-[var(--card-gap)]">
+        <DashboardCard title="AI Daily Briefing">
+          <div className="space-y-4">
+            {loading ? (
+              <p className="text-sm text-muted-foreground">Loading briefing…</p>
+            ) : (
+              <ul className="space-y-3 text-sm text-body-text">
+                {briefingText.map((item, index) => (
+                  <li key={index} className="flex gap-3">
+                    <span className="mt-1 h-2.5 w-2.5 rounded-full bg-gold" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </DashboardCard>
 
-        {/* Recent Purchases */}
-        <DashboardCard title="Recent Template Purchases">
-          {dashboard.loading ? (
-            <p className="caption-text text-[14px] py-8 text-center">Loading…</p>
-          ) : dashboard.recentPurchases.length > 0 ? (
-            <div className="divide-y divide-card-border">
-              {dashboard.recentPurchases.map((p, i) => (
-                <div key={i} className="flex items-center gap-3 py-3">
-                  <Download className="w-4 h-4 text-steel flex-shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[14px] text-body-text font-medium truncate">{p.template_name}</p>
-                    <p className="caption-text text-[12px]">
-                      {new Date(p.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                    </p>
+        <DashboardCard title="Quick Actions">
+          <div className="space-y-3">
+            {[
+              { label: "New Calculation", path: "/dashboard/calculator" },
+              { label: "Schedule Client", path: "/dashboard/scheduling" },
+              { label: "New Project", path: "/dashboard/projects" },
+              { label: "Generate Report", path: "/dashboard/reports" },
+            ].map((action) => (
+              <Button key={action.path} variant="outline" className="w-full text-left" onClick={() => navigate(action.path)}>
+                {action.label}
+              </Button>
+            ))}
+          </div>
+        </DashboardCard>
+      </div>
+
+      <div className="grid gap-4 xl:grid-cols-2 mb-[var(--card-gap)]">
+        <DashboardCard title="Load Calculator Summary">
+          <div className="space-y-4">
+            {loading ? (
+              <p className="text-sm text-muted-foreground">Loading calculations…</p>
+            ) : stats.loadCalculations.length === 0 ? (
+              <EmptyState
+                icon={<ClipboardList className="w-8 h-8 text-steel" />}
+                title="No calculations yet"
+                description="Run a load calculation to capture engineering results and save them to your project files."
+              />
+            ) : (
+              <div className="space-y-3">
+                {stats.loadCalculations.map((calc) => (
+                  <div key={calc.id} className="rounded-3xl border border-card-border bg-background p-4">
+                    <div className="flex items-center justify-between gap-4">
+                      <div>
+                        <p className="font-semibold">{calc.calculator_type || "Load Calculation"}</p>
+                        <p className="text-sm text-muted-foreground">{calc.project_name || "Unassigned project"}</p>
+                      </div>
+                      <Badge className="bg-slate-100 text-slate-800">{format(parseISO(calc.created_at), "MMM d")}</Badge>
+                    </div>
+                    <div className="mt-3 text-sm text-muted-foreground">Result: {calc.primary_result || "—"}</div>
                   </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </DashboardCard>
+
+        <DashboardCard title="Project Pipeline">
+          {loading ? (
+            <p className="text-sm text-muted-foreground">Loading pipeline…</p>
+          ) : (
+            <div className="space-y-3">
+              {stats.pipeline.map((item) => (
+                <div key={item.label} className="rounded-3xl border border-card-border bg-background p-4 flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">{item.label}</p>
+                    <p className="text-lg font-semibold text-body-text">{item.value}</p>
+                  </div>
+                  <Badge className="bg-slate-100 text-slate-800">{item.value}</Badge>
                 </div>
               ))}
             </div>
-          ) : (
-            <EmptyState
-              icon={<Download className="w-8 h-8 text-steel" />}
-              title="No template purchases"
-              description="Browse the template marketplace to purchase premium engineering calculation templates and project deliverables."
-              actionLabel="Browse Templates"
-              onAction={() => navigate("/templates")}
-            />
           )}
         </DashboardCard>
+      </div>
 
-        {/* Clients */}
-        <DashboardCard title="Clients">
-          <EmptyState
-            icon={<Users className="w-8 h-8 text-steel" />}
-            title="Manage Your Clients"
-            description="Keep all client relationships, contact details, and project history in one place."
-            actionLabel="View Clients"
-            onAction={() => navigate("/dashboard/clients")}
-          />
+      <div className="grid gap-4 xl:grid-cols-3 mb-[var(--card-gap)]">
+        <DashboardCard title="Upcoming Calendar">
+          <div className="space-y-3">
+            {stats.scheduleSummary.map((item) => (
+              <div key={item.day} className="rounded-3xl border border-card-border bg-background px-4 py-3 flex items-center justify-between">
+                <span className="font-medium">{item.day}</span>
+                <span className="text-sm text-muted-foreground">{item.events} events</span>
+              </div>
+            ))}
+          </div>
         </DashboardCard>
 
-        {/* Projects */}
-        <DashboardCard title="Projects">
-          <EmptyState
-            icon={<ClipboardList className="w-8 h-8 text-steel" />}
-            title="Manage Your Projects"
-            description="Track projects with tasks, milestones, and team assignments using a Kanban board or Gantt chart view."
-            actionLabel="View Projects"
-            onAction={() => navigate("/dashboard/projects")}
-          />
+        <DashboardCard title="Team Utilization">
+          <div className="space-y-4">
+            {stats.teamUtilization.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No team schedules assigned yet.</p>
+            ) : (
+              stats.teamUtilization.map((engineer) => (
+                <div key={engineer.name}>
+                  <div className="flex items-center justify-between text-sm mb-2">
+                    <span>{engineer.name}</span>
+                    <span>{engineer.percent}%</span>
+                  </div>
+                  <div className="h-2 rounded-full bg-section-alt overflow-hidden">
+                    <div className="h-full rounded-full bg-primary" style={{ width: `${engineer.percent}%` }} />
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         </DashboardCard>
 
-        {/* Scheduling — feature not built yet */}
-        <DashboardCard title="Upcoming Schedule">
-          <EmptyState
-            icon={<Calendar className="w-8 h-8 text-steel" />}
-            title="Scheduling coming soon"
-            description="Set up your availability and let clients book consultations directly. This feature is currently being developed."
-          />
+        <DashboardCard title="Recent Client Activity">
+          <div className="space-y-3">
+            {stats.recentActivity.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No recent activity found.</p>
+            ) : (
+              stats.recentActivity.map((activity, index) => (
+                <div key={index} className="rounded-3xl border border-card-border bg-background p-4">
+                  <p className="font-medium">{activity.title}</p>
+                  <p className="text-sm text-muted-foreground">{activity.client}</p>
+                  <p className="text-xs text-muted-foreground mt-2">{activity.when}</p>
+                </div>
+              ))
+            )}
+          </div>
         </DashboardCard>
       </div>
     </DashboardLayout>
