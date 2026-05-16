@@ -209,11 +209,21 @@ ${notes.trim()}
                             <SelectValue placeholder={loadingProjects ? "Loading projects..." : "Choose a project"} />
                           </SelectTrigger>
                           <SelectContent>
-                            {projects.map((project) => (
-                              <SelectItem key={project.id} value={project.id}>
-                                {project.project_name}
+                            {loadingProjects ? (
+                              <SelectItem value="" disabled>
+                                Loading projects...
                               </SelectItem>
-                            ))}
+                            ) : projects.length === 0 ? (
+                              <SelectItem value="" disabled>
+                                No projects available
+                              </SelectItem>
+                            ) : (
+                              projects.map((project) => (
+                                <SelectItem key={project.id} value={String(project.id)}>
+                                  {project.project_name}
+                                </SelectItem>
+                              ))
+                            )}
                           </SelectContent>
                         </Select>
                       </div>
