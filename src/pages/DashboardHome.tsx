@@ -59,7 +59,7 @@ const DashboardHome = () => {
     pipeline: [] as { label: string; value: number }[],
     scheduleSummary: [] as { day: string; events: number }[],
     teamUtilization: [] as { name: string; hours: number; percent: number }[],
-    recentActivity: { title: string; client: string; when: string }[],
+    recentActivity: [] as { title: string; client: string; when: string }[],
   });
   const [showWelcomeBanner, setShowWelcomeBanner] = useState(false);
   const { startTour } = useTour();
