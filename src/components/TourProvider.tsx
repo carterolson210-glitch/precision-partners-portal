@@ -307,4 +307,3 @@ export const useTour = () => {
   }
   return context;
 };
-};
