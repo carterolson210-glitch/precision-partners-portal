@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { Component, useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/DashboardLayout";
@@ -82,20 +82,27 @@ const ReportBuilder = () => {
     [projects, selectedProjectId],
   );
 
+  useEffect(() => {
+    if (!selectedProjectId && projects.length > 0) {
+      setSelectedProjectId(projects[0].id);
+    }
+  }, [projects, selectedProjectId]);
+
   const enabledScopeItems = useMemo(
     () => scopeItems.filter((item) => item.enabled),
     [scopeItems],
   );
 
   const reportPreview = useMemo(() => {
-    const projectName = selectedProject?.project_name || "Unassigned Project";
-    const clientName = selectedProject?.client_name || "Unknown Client";
-    const address = selectedProject?.address || "No address provided";
-    const dateRange = selectedProject?.start_date || selectedProject?.due_date
-      ? `${selectedProject?.start_date || "TBD"} — ${selectedProject?.due_date || "TBD"}`
-      : "TBD";
+    try {
+      const projectName = selectedProject?.project_name || "Unassigned Project";
+      const clientName = selectedProject?.client_name || "Unknown Client";
+      const address = selectedProject?.address || "No address provided";
+      const dateRange = selectedProject?.start_date || selectedProject?.due_date
+        ? `${selectedProject?.start_date || "TBD"} — ${selectedProject?.due_date || "TBD"}`
+        : "TBD";
 
-    return `Report Title: ${reportTitle}
+      return `Report Title: ${reportTitle}
 
 Project: ${projectName}
 Client: ${clientName}
@@ -114,6 +121,10 @@ Include recommendations: ${includeRecommendations ? "Yes" : "No"}
 Executive Summary:
 ${notes.trim()}
 `;
+    } catch (error) {
+      console.error("Error generating report preview", error);
+      return "Unable to generate report preview at this time.";
+    }
   }, [reportTitle, selectedProject, engineerName, reportDate, enabledScopeItems, includeSummary, includeAttachments, includeRecommendations, notes]);
 
   const setStep = (index: number) => {
@@ -403,4 +414,36 @@ ${notes.trim()}
   );
 };
 
-export default ReportBuilder;
+class ReportBuilderErrorBoundary extends Component<{children: React.ReactNode}, {error: Error | null}> {
+  constructor(props: {children: React.ReactNode}) {
+    super(props);
+    this.state = { error: null };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { error };
+  }
+
+  render() {
+    if (this.state.error) {
+      return (
+        <DashboardLayout title="Report Builder">
+          <div className="rounded-3xl border border-destructive/20 bg-destructive/5 p-8 text-center">
+            <p className="text-lg font-semibold text-destructive">Something went wrong loading the Report Builder.</p>
+            <p className="mt-2 text-sm text-muted-foreground">Please refresh the page or return to the dashboard and try again.</p>
+          </div>
+        </DashboardLayout>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+const ReportBuilderPage = () => (
+  <ReportBuilderErrorBoundary>
+    <ReportBuilder />
+  </ReportBuilderErrorBoundary>
+);
+
+export default ReportBuilderPage;
