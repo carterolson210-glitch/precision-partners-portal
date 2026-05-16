@@ -22,6 +22,7 @@ const sidebarItems = [
   { label: "Scheduling", icon: Calendar, path: "/dashboard/scheduling" },
   { label: "Clients", icon: Users, path: "/dashboard/clients" },
   { label: "Projects", icon: ClipboardList, path: "/dashboard/projects" },
+  { label: "Report Builder", icon: FileText, path: "/dashboard/reports" },
   { label: "Documents", icon: FolderOpen, path: "/dashboard/documents" },
   { label: "Invoicing", icon: DollarSign, path: "/dashboard/invoicing" },
   { label: "Proposals", icon: FileText, path: "/dashboard/proposals" },

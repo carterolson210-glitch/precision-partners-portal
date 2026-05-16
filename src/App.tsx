@@ -32,6 +32,7 @@ import TemplateDetail from "./pages/TemplateDetail";
 import Downloads from "./pages/Downloads";
 import EngineeringCopilot from "./pages/EngineeringCopilot";
 import PEStampManager from "./pages/PEStampManager";
+import ReportBuilder from "./pages/ReportBuilder";
 import ForgotPassword from "./pages/ForgotPassword";
 import NotFound from "./pages/NotFound";
 import ResetPassword from "./pages/ResetPassword";
@@ -95,7 +96,10 @@ const App = () => (
             <Route path="/dashboard/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
             <Route path="/dashboard/referrals" element={<ProtectedRoute><Referrals /></ProtectedRoute>} />
             <Route path="/dashboard/downloads" element={<ProtectedRoute><Downloads /></ProtectedRoute>} />
-            <Route path="/dashboard/copilot" element={<ProtectedRoute><EngineeringCopilot /></ProtectedRoute>} />            <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />            <Route path="/auth/callback" element={<AuthCallback />} />
+            <Route path="/dashboard/copilot" element={<ProtectedRoute><EngineeringCopilot /></ProtectedRoute>} />
+            <Route path="/dashboard/reports" element={<ProtectedRoute><ReportBuilder /></ProtectedRoute>} />
+            <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/dashboard/pe-stamps" element={<ProtectedRoute><PEStampManager /></ProtectedRoute>} />
             <Route path="/dashboard/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
 
