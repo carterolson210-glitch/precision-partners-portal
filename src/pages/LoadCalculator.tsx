@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Download, Zap } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,6 +6,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import DashboardCard from "@/components/DashboardCard";
 import EmptyState from "@/components/EmptyState";
 import ElectricalLoadCalculator from "@/components/ElectricalLoadCalculator";
+import AIAssistPanel from "@/components/AIAssistPanel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
@@ -57,6 +58,24 @@ const LoadCalculator = () => {
     toast.success("Calculation saved successfully!");
   };
 
+  const aiContextSummary = useMemo(() => {
+    return `This AI Assist panel is attached to the Electrical Load Calculator in the app.
+Relevant files: src/pages/LoadCalculator.tsx, src/components/ElectricalLoadCalculator.tsx.
+
+The calculator takes these inputs: squareFootage, numberOfFloors, hvacUnits, lightingCircuits, outlets, appliances.
+It computes NEC 220 style load estimates using the following assumptions:
+- General Lighting: 3 VA/sq ft at 120V
+- Small Appliance Circuits: 1500 VA per floor at 120V
+- Laundry Circuits: 1500 VA per floor at 120V
+- Range appliance load: 8000 VA each at 240V
+- Dryer appliance load: 5500 VA each at 240V
+- Water heater load: 4500 VA each at 240V
+- HVAC unit load: 5000 VA each at 240V
+- Receptacle load: 180 VA each at 120V
+
+When answering, reference code file paths where appropriate and keep the response focused on structural/electrical engineering guidance.`;
+  }, []);
+
   const handleDownload = (calculation: SavedCalculation) => {
     // Create a simple text report
     const report = `
@@ -92,19 +111,25 @@ Note: This calculation is based on NEC 220 requirements and should be verified b
 
   return (
     <DashboardLayout title="Electrical Load Calculator">
-      <DashboardCard title="Load Calculations">
-        {showCalculator ? (
-          <ElectricalLoadCalculator />
-        ) : (
-          <EmptyState
-            icon={<Zap className="w-8 h-8 text-steel" />}
-            title="Calculate Electrical Service Requirements"
-            description="Input building specifications to calculate total electrical load requirements per NEC 220. Get accurate amperage and kilowatt calculations for proper service sizing."
-            actionLabel="New Calculation"
-            onAction={handleNewCalculation}
-          />
-        )}
-      </DashboardCard>
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1.7fr)_minmax(320px,0.9fr)]">
+        <DashboardCard title="Load Calculations">
+          {showCalculator ? (
+            <ElectricalLoadCalculator />
+          ) : (
+            <EmptyState
+              icon={<Zap className="w-8 h-8 text-steel" />}
+              title="Calculate Electrical Service Requirements"
+              description="Input building specifications to calculate total electrical load requirements per NEC 220. Get accurate amperage and kilowatt calculations for proper service sizing."
+              actionLabel="New Calculation"
+              onAction={handleNewCalculation}
+            />
+          )}
+        </DashboardCard>
+
+        <div className="space-y-6">
+          <AIAssistPanel contextSummary={aiContextSummary} />
+        </div>
+      </div>
 
       <div className="mt-[var(--card-gap)]">
         <DashboardCard title="Saved Calculations">

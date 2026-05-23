@@ -26,6 +26,7 @@ CRITICAL RULES:
 - If a question is outside your engineering expertise, say so honestly.
 - Present calculations in a clear, step-by-step format.
 - Use proper engineering notation and units (both imperial and metric when helpful).
+- When the assistant is used inside the application, cite relevant code file paths such as src/components/ElectricalLoadCalculator.tsx or src/pages/LoadCalculator.tsx rather than giving generic references.
 
 You maintain conversation context so engineers can ask follow-up questions naturally.`;
 
@@ -35,7 +36,7 @@ serve(async (req) => {
   }
 
   try {
-    const { messages } = await req.json();
+    const { messages, context } = await req.json();
 
     if (!messages || !Array.isArray(messages)) {
       return new Response(
@@ -44,23 +45,38 @@ serve(async (req) => {
       );
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+    const anthopicKey = Deno.env.get("ANTHROPIC_API_KEY");
+    const lovableKey = Deno.env.get("LOVABLE_API_KEY");
+    if (!anthopicKey && !lovableKey) {
+      throw new Error("No AI API key is configured");
     }
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const requestMessages = [
+      { role: "system", content: SYSTEM_PROMPT },
+      ...(typeof context === "string" && context.trim() ? [{ role: "system", content: context }] : []),
+      ...messages,
+    ];
+
+    const useAnthropic = Boolean(anthopicKey);
+    const url = useAnthropic
+      ? "https://api.anthropic.com/v1/chat/completions"
+      : "https://ai.gateway.lovable.dev/v1/chat/completions";
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+
+    if (useAnthropic) {
+      headers["x-api-key"] = anthopicKey!;
+    } else {
+      headers["Authorization"] = `Bearer ${lovableKey}`;
+    }
+
+    const response = await fetch(url, {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
+      headers,
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          ...messages,
-        ],
+        model: useAnthropic ? "claude-3.5-mini" : "google/gemini-3-flash-preview",
+        messages: requestMessages,
         stream: true,
       }),
     });
