@@ -249,11 +249,11 @@ This report is structured for internal review and stakeholder communication. Use
                           </SelectTrigger>
                           <SelectContent>
                             {loadingProjects ? (
-                              <SelectItem value="" disabled>
+                              <SelectItem value="loading" disabled>
                                 Loading projects...
                               </SelectItem>
                             ) : projects.length === 0 ? (
-                              <SelectItem value="" disabled>
+                              <SelectItem value="none" disabled>
                                 No projects available
                               </SelectItem>
                             ) : (
