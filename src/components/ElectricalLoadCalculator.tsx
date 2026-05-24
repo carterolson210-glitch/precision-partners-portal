@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
+import StructuralDrawingExtractor from "@/components/StructuralDrawingExtractor";
 
 interface ElectricalLoadInputs {
   squareFootage: number;
@@ -24,7 +25,13 @@ interface LoadBreakdown {
   kw: number;
 }
 
-export default function ElectricalLoadCalculator({ onSave }: { onSave?: () => void }) {
+export default function ElectricalLoadCalculator({
+  projectId,
+  onSave,
+}: {
+  projectId?: string;
+  onSave?: () => void;
+}) {
   const { user } = useAuth();
   const [inputs, setInputs] = useState<ElectricalLoadInputs>({
     squareFootage: 2000,
@@ -34,7 +41,42 @@ export default function ElectricalLoadCalculator({ onSave }: { onSave?: () => vo
     outlets: 20,
     appliances: 5,
   });
+  const [structuralInputs, setStructuralInputs] = useState({
+    slabThickness: "6 in",
+    unitWeight: "150 pcf",
+    superimposedDeadLoad: "10 psf",
+    occupancyType: "Office",
+    memberSizes: "W12x40 beams, 8x8 columns",
+  });
   const [loading, setLoading] = useState(false);
+
+  const handleDrawingExtraction = (values: {
+    slabThickness: string;
+    unitWeight: string;
+    superimposedDeadLoad: string;
+    occupancyType: string;
+    memberSizes: string;
+  }) => {
+    setStructuralInputs(values);
+  };
+
+  const deadLoadEstimate = useMemo(() => {
+    const parseNumber = (value: string) => {
+      const match = value.match(/[\d.]+/);
+      return match ? Number(match[0]) : 0;
+    };
+
+    const thicknessIn = parseNumber(structuralInputs.slabThickness);
+    const unitWeight = parseNumber(structuralInputs.unitWeight);
+    const superLoad = parseNumber(structuralInputs.superimposedDeadLoad);
+    if (!thicknessIn || !unitWeight) return null;
+
+    const slabDepthFeet = structuralInputs.slabThickness.toLowerCase().includes("mm")
+      ? thicknessIn * 0.00328084
+      : thicknessIn / 12;
+
+    return slabDepthFeet * unitWeight + superLoad;
+  }, [structuralInputs]);
 
   // Calculate loads based on NEC requirements
   const loadBreakdown = useMemo((): LoadBreakdown[] => {
@@ -111,12 +153,25 @@ export default function ElectricalLoadCalculator({ onSave }: { onSave?: () => vo
 
     setLoading(true);
     try {
-      const { error } = await supabase.from("load_calculations").insert({
+      const payload: any = {
         user_id: user.id,
-        inputs,
+        inputs: {
+          ...inputs,
+          structural: structuralInputs,
+          source: {
+            type: "drawing-extraction",
+            extractedAt: new Date().toISOString(),
+          },
+        },
         total_amps: totals.totalAmps,
         total_kw: totals.totalKw,
-      });
+      };
+
+      if (projectId) {
+        payload.project_id = projectId;
+      }
+
+      const { error } = await supabase.from("load_calculations").insert(payload);
 
       if (error) throw error;
 
@@ -134,12 +189,42 @@ export default function ElectricalLoadCalculator({ onSave }: { onSave?: () => vo
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Input Section */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Building Information</CardTitle>
-          </CardHeader>
+      <StructuralDrawingExtractor onExtracted={handleDrawingExtraction} />
+      <Card>
+        <CardHeader>
+          <CardTitle>Structural Load Summary</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-4 sm:grid-cols-2">
+          <div className="rounded-2xl border border-border p-4 bg-muted">
+            <p className="text-sm text-muted-foreground">Slab Thickness</p>
+            <p className="mt-2 text-lg font-semibold">{structuralInputs.slabThickness || "Not set"}</p>
+          </div>
+          <div className="rounded-2xl border border-border p-4 bg-muted">
+            <p className="text-sm text-muted-foreground">Unit Weight</p>
+            <p className="mt-2 text-lg font-semibold">{structuralInputs.unitWeight || "Not set"}</p>
+          </div>
+          <div className="rounded-2xl border border-border p-4 bg-muted">
+            <p className="text-sm text-muted-foreground">Superimposed Dead Load</p>
+            <p className="mt-2 text-lg font-semibold">{structuralInputs.superimposedDeadLoad || "Not set"}</p>
+          </div>
+          <div className="rounded-2xl border border-border p-4 bg-muted">
+            <p className="text-sm text-muted-foreground">Occupancy Type</p>
+            <p className="mt-2 text-lg font-semibold">{structuralInputs.occupancyType || "Not set"}</p>
+          </div>
+          <div className="sm:col-span-2 rounded-2xl border border-border p-4 bg-muted">
+            <p className="text-sm text-muted-foreground">Member Sizes</p>
+            <p className="mt-2 text-lg font-semibold">{structuralInputs.memberSizes || "Not set"}</p>
+          </div>
+          <div className="sm:col-span-2 rounded-2xl border border-border p-4 bg-muted">
+            <p className="text-sm text-muted-foreground">Estimated Composite Dead Load</p>
+            <p className="mt-2 text-lg font-semibold">{deadLoadEstimate !== null ? `${deadLoadEstimate.toFixed(1)} psf` : "Requires slab info"}</p>
+          </div>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Building Information</CardTitle>
+        </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">

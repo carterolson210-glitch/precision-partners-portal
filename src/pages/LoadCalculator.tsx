@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Download, Zap } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,6 +22,8 @@ interface SavedCalculation {
 
 const LoadCalculator = () => {
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
+  const projectId = searchParams.get("projectId") || undefined;
   const [showCalculator, setShowCalculator] = useState(false);
   const [savedCalculations, setSavedCalculations] = useState<SavedCalculation[]>([]);
   const [loading, setLoading] = useState(true);
@@ -114,7 +117,7 @@ Note: This calculation is based on NEC 220 requirements and should be verified b
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1.7fr)_minmax(320px,0.9fr)]">
         <DashboardCard title="Load Calculations">
           {showCalculator ? (
-            <ElectricalLoadCalculator />
+            <ElectricalLoadCalculator projectId={projectId} onSave={handleCalculationSaved} />
           ) : (
             <EmptyState
               icon={<Zap className="w-8 h-8 text-steel" />}
