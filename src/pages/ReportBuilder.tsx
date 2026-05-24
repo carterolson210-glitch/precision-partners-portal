@@ -1,4 +1,4 @@
-import { Component, useEffect, useMemo, useState } from "react";
+import React, { Component, useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/DashboardLayout";
@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
-import { FileText, Download, Share2, CheckCircle2, ArrowLeftRight } from "lucide-react";
+import { Download, Share2, CheckCircle2, ArrowLeftRight } from "lucide-react";
 
 interface Project {
   id: string;
@@ -93,39 +93,51 @@ const ReportBuilder = () => {
     [scopeItems],
   );
 
-  const reportPreview = useMemo(() => {
-    try {
-      const projectName = selectedProject?.project_name || "Unassigned Project";
-      const clientName = selectedProject?.client_name || "Unknown Client";
-      const address = selectedProject?.address || "No address provided";
-      const dateRange = selectedProject?.start_date || selectedProject?.due_date
-        ? `${selectedProject?.start_date || "TBD"} — ${selectedProject?.due_date || "TBD"}`
-        : "TBD";
-
-      return `Report Title: ${reportTitle}
-
-Project: ${projectName}
-Client: ${clientName}
-Address: ${address}
-Schedule: ${dateRange}
-Engineer: ${engineerName || "TBD"}
-Date: ${reportDate}
-
-Scope of Work:
-${enabledScopeItems.map((item) => `- ${item.label}`).join("\n")}
-
-Include summary section: ${includeSummary ? "Yes" : "No"}
-Include attachments summary: ${includeAttachments ? "Yes" : "No"}
-Include recommendations: ${includeRecommendations ? "Yes" : "No"}
-
-Executive Summary:
-${notes.trim()}
-`;
-    } catch (error) {
-      console.error("Error generating report preview", error);
-      return "Unable to generate report preview at this time.";
+  const projectSchedule = useMemo(() => {
+    if (!selectedProject) return "TBD";
+    if (selectedProject.start_date || selectedProject.due_date) {
+      return `${selectedProject.start_date || "TBD"} — ${selectedProject.due_date || "TBD"}`;
     }
-  }, [reportTitle, selectedProject, engineerName, reportDate, enabledScopeItems, includeSummary, includeAttachments, includeRecommendations, notes]);
+    return "TBD";
+  }, [selectedProject]);
+
+  const sectionList = useMemo(
+    () => (enabledScopeItems.length
+      ? enabledScopeItems.map((item) => `• ${item.label}`).join("\n")
+      : "• No sections selected"),
+    [enabledScopeItems],
+  );
+
+  const reportPreview = useMemo(() => {
+    const projectName = selectedProject?.project_name || "Unassigned Project";
+    const clientName = selectedProject?.client_name || "Unknown Client";
+    const address = selectedProject?.address || "No address provided";
+
+    return `REPORT: ${reportTitle}
+
+PROJECT
+- Project: ${projectName}
+- Client: ${clientName}
+- Address: ${address}
+- Schedule: ${projectSchedule}
+- Lead Engineer: ${engineerName || "TBD"}
+- Report Date: ${reportDate}
+
+SCOPE OF WORK
+${sectionList}
+
+REPORT CONFIGURATION
+- Executive summary: ${includeSummary ? "Included" : "Excluded"}
+- Attachments summary: ${includeAttachments ? "Included" : "Excluded"}
+- Recommendations section: ${includeRecommendations ? "Included" : "Excluded"}
+
+EXECUTIVE SUMMARY
+${notes.trim()}
+
+NOTES
+This report is structured for internal review and stakeholder communication. Use the download actions to export a clean report summary or a data-ready CSV record.
+`;
+  }, [reportTitle, selectedProject, reportDate, projectSchedule, engineerName, sectionList, includeSummary, includeAttachments, includeRecommendations, notes]);
 
   const setStep = (index: number) => {
     if (index < 0 || index >= steps.length) return;
@@ -176,6 +188,11 @@ ${notes.trim()}
   };
 
   const copyShareLink = async () => {
+    if (!navigator.clipboard) {
+      toast.error("Clipboard is not available in this browser.");
+      return;
+    }
+
     try {
       await navigator.clipboard.writeText(window.location.href);
       toast.success("Report builder link copied to clipboard");
@@ -189,16 +206,27 @@ ${notes.trim()}
     <DashboardLayout title="Report Builder">
       <div className="space-y-6">
         <div className="rounded-3xl border border-card-border bg-background p-5 shadow-sm">
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <p className="text-sm uppercase tracking-[0.2em] text-muted-foreground">Engineering report workflow</p>
-              <h2 className="text-2xl font-semibold">Build professional scope and deliverable reports</h2>
+              <p className="text-sm uppercase tracking-[0.2em] text-muted-foreground">Report Builder</p>
+              <h1 className="text-3xl font-semibold">Create clean, polished engineering reports</h1>
+              <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+                Use existing project data to assemble scope, findings, and recommendations into a shareable report that your team can download immediately.
+              </p>
             </div>
-            <div className="flex flex-wrap gap-2">
-              <Button variant="outline" size="sm" onClick={() => setStep(0)} className={activeStep === 0 ? "bg-primary text-primary-foreground" : ""}>Project</Button>
-              <Button variant="outline" size="sm" onClick={() => setStep(1)} className={activeStep === 1 ? "bg-primary text-primary-foreground" : ""}>Scope</Button>
-              <Button variant="outline" size="sm" onClick={() => setStep(2)} className={activeStep === 2 ? "bg-primary text-primary-foreground" : ""}>Metadata</Button>
-              <Button variant="outline" size="sm" onClick={() => setStep(3)} className={activeStep === 3 ? "bg-primary text-primary-foreground" : ""}>Finalize</Button>
+            <div className="grid gap-2 sm:grid-cols-2">
+              <Button variant={activeStep === 0 ? "primary" : "outline"} size="sm" onClick={() => setStep(0)}>
+                Project
+              </Button>
+              <Button variant={activeStep === 1 ? "primary" : "outline"} size="sm" onClick={() => setStep(1)}>
+                Scope
+              </Button>
+              <Button variant={activeStep === 2 ? "primary" : "outline"} size="sm" onClick={() => setStep(2)}>
+                Metadata
+              </Button>
+              <Button variant={activeStep === 3 ? "primary" : "outline"} size="sm" onClick={() => setStep(3)}>
+                Finalize
+              </Button>
             </div>
           </div>
         </div>
@@ -355,11 +383,11 @@ ${notes.trim()}
                       </CardContent>
                     </Card>
                     <div className="flex flex-wrap gap-2">
-                      <Button onClick={downloadReportText}>
+                      <Button onClick={downloadReportText} disabled={!selectedProject}>
                         <Download className="w-4 h-4 mr-2" />
                         Download Report
                       </Button>
-                      <Button variant="outline" onClick={downloadCsv}>
+                      <Button variant="outline" onClick={downloadCsv} disabled={!selectedProject}>
                         <ArrowLeftRight className="w-4 h-4 mr-2" />
                         Download CSV
                       </Button>
@@ -374,10 +402,10 @@ ${notes.trim()}
             </Card>
 
             <div className="flex flex-wrap gap-2">
-              <Button variant="outline" disabled={activeStep === 0} onClick={() => setStep(activeStep - 1)}>
+              <Button variant="outline" disabled={activeStep === 0} onClick={() => setStep(Math.max(activeStep - 1, 0))}>
                 Back
               </Button>
-              <Button disabled={activeStep === steps.length - 1} onClick={() => setStep(activeStep + 1)}>
+              <Button disabled={activeStep === steps.length - 1} onClick={() => setStep(Math.min(activeStep + 1, steps.length - 1))}>
                 Next
               </Button>
             </div>
