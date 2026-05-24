@@ -1,706 +1,616 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simpli-Engineering | AI-Powered Engineering Platform</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        /* ===== CSS VARIABLES ===== */
-        :root {
-            --navy: #0f1b2d;
-            --steel-blue: #3a8bd9;
-            --amber: #f5a623;
-            --white: #ffffff;
-            --white-muted: rgba(255, 255, 255, 0.7);
-            --white-faint: rgba(255, 255, 255, 0.1);
-            --grid-opacity: 0.05;
-            --border-radius: 6px;
-            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            --font-mono: 'IBM Plex Mono', monospace;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Engineering Helper | AI-Powered Engineering Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #0f1b2d;
+      --steel-blue: #3a8bd9;
+      --amber: #f5a623;
+      --white: #ffffff;
+      --white-muted: rgba(255,255,255,0.78);
+      --white-soft: rgba(255,255,255,0.12);
+      --border-radius: 6px;
+      --font-sans: 'Inter', sans-serif;
+      --font-mono: 'IBM Plex Mono', monospace;
+    }
 
-        /* ===== RESET & BASE ===== */
-        *, *::before, *::after {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-        html, body {
-            height: 100%;
-            overflow-x: hidden;
-        }
+    html, body {
+      min-height: 100%;
+      height: 100%;
+      overflow-x: hidden;
+    }
 
-        body {
-            font-family: var(--font-sans);
-            background-color: var(--navy);
-            color: var(--white);
-            line-height: 1.6;
-        }
+    body {
+      background: var(--navy);
+      color: var(--white);
+      font-family: var(--font-sans);
+      line-height: 1.5;
+    }
 
-        /* ===== HERO SECTION ===== */
-        .hero {
-            position: relative;
-            min-height: 100vh;
-            width: 100%;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
+    button, a {
+      font: inherit;
+    }
 
-        /* ===== BACKGROUND GRID ===== */
-        .grid-background {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 200%;
-            height: 200%;
-            z-index: 0;
-            opacity: var(--grid-opacity);
-            animation: gridPan 60s linear infinite;
-        }
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      width: 100%;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
 
-        @keyframes gridPan {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(-50%, -50%); }
-        }
+    .grid-background {
+      position: fixed;
+      inset: 0;
+      width: 200%;
+      height: 200%;
+      opacity: 0.05;
+      z-index: 0;
+      animation: gridPan 60s linear infinite;
+      pointer-events: none;
+    }
 
-        .grid-background svg {
-            width: 100%;
-            height: 100%;
-        }
+    @keyframes gridPan {
+      from { transform: translate(0,0); }
+      to { transform: translate(-25%, -25%); }
+    }
 
-        /* ===== PARTICLES CANVAS ===== */
-        .particles-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-            pointer-events: none;
-        }
+    .grid-background svg {
+      width: 100%;
+      height: 100%;
+    }
 
-        /* ===== NAVBAR ===== */
-        .navbar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 100;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px 48px;
-            background: rgba(15, 27, 45, 0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--white-faint);
-        }
+    .particles-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+    }
 
-        .navbar-logo {
-            font-size: 18px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-            color: var(--white);
-            text-decoration: none;
-        }
+    .navbar {
+      position: fixed;
+      inset: 0 0 auto 0;
+      z-index: 10;
+      padding: 18px 36px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      background: rgba(15, 27, 45, 0.72);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
 
-        .navbar-links {
-            display: flex;
-            gap: 40px;
-            list-style: none;
-        }
+    .navbar-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
 
-        .navbar-links a {
-            color: var(--white-muted);
-            text-decoration: none;
-            font-size: 15px;
-            font-weight: 500;
-            transition: color 0.2s ease;
-        }
+    .navbar-logo {
+      color: var(--white);
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      text-decoration: none;
+    }
 
-        .navbar-links a:hover {
-            color: var(--white);
-        }
+    .navbar-links {
+      display: flex;
+      gap: 36px;
+      list-style: none;
+    }
 
-        .navbar-cta {
-            background: var(--steel-blue);
-            color: var(--white);
-            border: none;
-            padding: 10px 20px;
-            font-size: 14px;
-            font-weight: 600;
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            transition: background 0.2s ease, transform 0.1s ease;
-        }
+    .navbar-links a {
+      color: rgba(255,255,255,0.78);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: color 0.2s ease;
+    }
 
-        .navbar-cta:hover {
-            background: #2d7bc0;
-            transform: translateY(-1px);
-        }
+    .navbar-links a:hover {
+      color: var(--white);
+    }
 
-        .navbar-cta:active {
-            transform: translateY(0);
-        }
+    .navbar-cta {
+      background: var(--steel-blue);
+      color: var(--white);
+      border: none;
+      border-radius: var(--border-radius);
+      padding: 12px 24px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
 
-        /* ===== HERO CONTENT ===== */
-        .hero-content {
-            position: relative;
-            z-index: 10;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 120px 24px 40px;
-            text-align: center;
-            max-width: 900px;
-            margin: 0 auto;
-        }
+    .navbar-cta:hover {
+      transform: translateY(-1px);
+      background: #2b76c7;
+    }
 
-        /* Badge */
-        .hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 16px;
-            background: var(--white-faint);
-            border-radius: 100px;
-            font-size: 13px;
-            font-weight: 500;
-            color: var(--white-muted);
-            margin-bottom: 24px;
-            opacity: 0;
-            transform: translateY(12px);
-            animation: fadeUp 0.6s ease forwards;
-            animation-delay: 0.3s;
-        }
+    .hero-content {
+      position: relative;
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      flex: 1;
+      padding: 200px 24px 80px;
+      max-width: 1080px;
+      margin: 0 auto;
+    }
 
-        .badge-dot {
-            width: 8px;
-            height: 8px;
-            background: var(--amber);
-            border-radius: 50%;
-            animation: pulse 2s ease-in-out infinite;
-        }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 18px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      color: var(--white-muted);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      opacity: 0;
+      transform: translateY(18px);
+      animation: fadeUp 0.6s ease forwards;
+      animation-delay: 0.3s;
+    }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.6; transform: scale(1.2); }
-        }
+    .badge-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--amber);
+      animation: pulse 1.8s ease-in-out infinite;
+    }
 
-        /* Headline */
-        .hero-headline {
-            font-size: 48px;
-            font-weight: 700;
-            line-height: 1.15;
-            letter-spacing: -1px;
-            color: var(--white);
-            margin-bottom: 20px;
-            max-width: 800px;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeUp 0.6s ease forwards;
-            animation-delay: 0.6s;
-        }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.3); opacity: 0.65; }
+    }
 
-        /* Subheadline */
-        .hero-subheadline {
-            font-size: 18px;
-            font-weight: 400;
-            line-height: 1.6;
-            color: var(--white-muted);
-            margin-bottom: 36px;
-            max-width: 500px;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeUp 0.6s ease forwards;
-            animation-delay: 0.9s;
-        }
+    .hero-headline {
+      max-width: 780px;
+      margin-top: 28px;
+      font-size: clamp(2.4rem, 5vw, 4.6rem);
+      line-height: 1.02;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      opacity: 0;
+      transform: translateY(26px);
+      animation: fadeUp 0.6s ease forwards;
+      animation-delay: 0.6s;
+    }
 
-        /* Buttons */
-        .hero-buttons {
-            display: flex;
-            gap: 16px;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeUp 0.6s ease forwards;
-            animation-delay: 1.1s;
-        }
+    .hero-subheadline {
+      margin-top: 20px;
+      max-width: 620px;
+      font-size: 1.05rem;
+      color: var(--white-muted);
+      line-height: 1.8;
+      opacity: 0;
+      transform: translateY(26px);
+      animation: fadeUp 0.6s ease forwards;
+      animation-delay: 0.9s;
+    }
 
-        .btn-primary {
-            background: var(--steel-blue);
-            color: var(--white);
-            border: none;
-            padding: 14px 32px;
-            font-size: 16px;
-            font-weight: 600;
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            transition: background 0.2s ease, transform 0.1s ease;
-        }
+    .hero-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 36px;
+      opacity: 0;
+      transform: translateY(26px);
+      animation: fadeUp 0.6s ease forwards;
+      animation-delay: 1.1s;
+    }
 
-        .btn-primary:hover {
-            background: #2d7bc0;
-            transform: translateY(-2px);
-        }
+    .btn-primary, .btn-secondary {
+      border-radius: var(--border-radius);
+      min-width: 170px;
+      padding: 14px 24px;
+      transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 15px;
+    }
 
-        .btn-primary:active {
-            transform: translateY(0);
-        }
+    .btn-primary {
+      background: var(--steel-blue);
+      color: var(--white);
+      border: 1px solid transparent;
+    }
 
-        .btn-secondary {
-            background: transparent;
-            color: var(--white);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            padding: 14px 32px;
-            font-size: 16px;
-            font-weight: 600;
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            transition: background 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
-        }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      background: #2b76c7;
+    }
 
-        .btn-secondary:hover {
-            background: var(--white-faint);
-            border-color: rgba(255, 255, 255, 0.5);
-            transform: translateY(-2px);
-        }
+    .btn-secondary {
+      background: transparent;
+      color: var(--white);
+      border: 1px solid rgba(255,255,255,0.25);
+    }
 
-        .btn-secondary:active {
-            transform: translateY(0);
-        }
+    .btn-secondary:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255,255,255,0.45);
+      background: rgba(255,255,255,0.07);
+    }
 
-        /* ===== MOCKUP WINDOW ===== */
-        .mockup-container {
-            position: relative;
-            z-index: 10;
-            display: flex;
-            justify-content: center;
-            padding: 0 24px 60px;
-            opacity: 0;
-            transform: scale(0.9);
-            animation: scaleFadeIn 0.8s ease forwards, float 6s ease-in-out infinite;
-            animation-delay: 1.3s, 2.1s;
-        }
+    .mockup-container {
+      position: relative;
+      z-index: 5;
+      margin: 0 auto 80px;
+      width: min(88vw, 760px);
+      opacity: 0;
+      transform: scale(0.92);
+      animation: scaleFadeIn 0.7s ease forwards, float 6.2s ease-in-out infinite;
+      animation-delay: 1.3s, 2s;
+    }
 
-        .mockup-glow {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 120%;
-            height: 120%;
-            background: radial-gradient(ellipse, rgba(58, 139, 217, 0.15) 0%, transparent 70%);
-            pointer-events: none;
-        }
+    .mockup-glow {
+      position: absolute;
+      inset: 0;
+      filter: blur(40px);
+      background: radial-gradient(circle at center, rgba(58, 139, 217, 0.16) 0%, transparent 55%);
+      pointer-events: none;
+      z-index: 0;
+    }
 
-        .mockup-window {
-            position: relative;
-            background: #1a2740;
-            border-radius: var(--border-radius);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 
-                0 24px 80px rgba(0, 0, 0, 0.4),
-                0 8px 24px rgba(0, 0, 0, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.05);
-            overflow: hidden;
-            width: 100%;
-            max-width: 720px;
-        }
+    .mockup-window {
+      position: relative;
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      background: rgba(14, 21, 36, 0.96);
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 34px 90px rgba(0,0,0,0.45);
+      z-index: 1;
+    }
 
-        /* Window header */
-        .mockup-header {
-            display: flex;
-            align-items: center;
-            padding: 12px 16px;
-            background: rgba(0, 0, 0, 0.2);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-            gap: 8px;
-        }
+    .mockup-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 18px;
+      background: rgba(255,255,255,0.04);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
 
-        .mockup-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-        }
+    .mockup-header .mockup-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
 
-        .mockup-dot:nth-child(1) { background: #ff5f57; }
-        .mockup-dot:nth-child(2) { background: #febc2e; }
-        .mockup-dot:nth-child(3) { background: #28c840; }
+    .mockup-header .mockup-dot:nth-child(1) { background: #ff5f57; }
+    .mockup-header .mockup-dot:nth-child(2) { background: #febc2e; }
+    .mockup-header .mockup-dot:nth-child(3) { background: #28c840; }
 
-        .mockup-title {
-            flex: 1;
-            text-align: center;
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.3);
-            font-family: var(--font-sans);
-        }
+    .mockup-title {
+      flex: 1;
+      text-align: center;
+      color: rgba(255,255,255,0.45);
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
 
-        /* Window content */
-        .mockup-body {
-            padding: 24px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
+    .mockup-body {
+      display: grid;
+      grid-template-columns: 1fr 0.92fr;
+      gap: 22px;
+      padding: 24px;
+    }
 
-        .mockup-section-title {
-            font-size: 13px;
-            font-weight: 600;
-            color: rgba(255, 255, 255, 0.5);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 16px;
-            grid-column: 1 / -1;
-        }
+    .mockup-section-title {
+      grid-column: 1 / -1;
+      font-size: 12px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
 
-        /* Input fields */
-        .mockup-input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
+    .mockup-input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
 
-        .mockup-label {
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.4);
-            font-weight: 500;
-        }
+    .mockup-label {
+      font-size: 12px;
+      color: rgba(255,255,255,0.45);
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
 
-        .mockup-input {
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
-            padding: 10px 12px;
-            font-family: var(--font-mono);
-            font-size: 14px;
-            color: var(--white);
-            outline: none;
-        }
+    .mockup-input {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 6px;
+      padding: 12px 14px;
+      color: var(--white);
+      font-family: var(--font-mono);
+      font-size: 14px;
+      outline: none;
+    }
 
-        /* Result card */
-        .result-card {
-            background: rgba(58, 139, 217, 0.1);
-            border: 1px solid rgba(58, 139, 217, 0.2);
-            border-radius: var(--border-radius);
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
+    .mockup-input:focus {
+      border-color: rgba(58,139,217,0.6);
+    }
 
-        .result-label {
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.5);
-            font-weight: 500;
-        }
+    .result-card {
+      background: rgba(58,139,217,0.12);
+      border: 1px solid rgba(58,139,217,0.3);
+      padding: 18px;
+      border-radius: var(--border-radius);
+      display: grid;
+      gap: 10px;
+    }
 
-        .result-value {
-            font-family: var(--font-mono);
-            font-size: 28px;
-            font-weight: 600;
-            color: var(--white);
-        }
+    .result-label {
+      color: rgba(255,255,255,0.55);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
 
-        .result-status {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 12px;
-            font-weight: 600;
-            color: #4ade80;
-        }
+    .result-value {
+      font-family: var(--font-mono);
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--white);
+      line-height: 1.1;
+    }
 
-        .result-status svg {
-            width: 14px;
-            height: 14px;
-        }
+    .result-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #7fffd4;
+      font-size: 13px;
+      font-weight: 700;
+    }
 
-        /* ===== ANIMATIONS ===== */
-        @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+    .result-status svg {
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
+      stroke-width: 3;
+    }
 
-        @keyframes scaleFadeIn {
-            from {
-                opacity: 0;
-                transform: scale(0.9);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-12px); }
-        }
+    @keyframes scaleFadeIn {
+      from { opacity: 0; transform: scale(0.92); }
+      to { opacity: 1; transform: scale(1); }
+    }
 
-        /* ===== REDUCED MOTION ===== */
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
 
-            .grid-background {
-                animation: none;
-            }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
 
-            .particles-canvas {
-                display: none;
-            }
+      .grid-background,
+      .particles-canvas,
+      .mockup-container {
+        animation: none !important;
+      }
+    }
 
-            .mockup-container {
-                animation: fadeUp 0.3s ease forwards;
-                animation-delay: 0.3s;
-            }
-        }
+    @media (max-width: 960px) {
+      .navbar { padding: 16px 24px; }
+      .navbar-links { display: none; }
+      .hero-content { padding-top: 180px; }
+      .hero-headline { font-size: 2.6rem; }
+      .hero-subheadline { max-width: 90%; }
+      .hero-buttons { flex-direction: column; width: min(340px, 100%); }
+      .mockup-body { grid-template-columns: 1fr; }
+      .mockup-container { margin-bottom: 60px; }
+    }
 
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 768px) {
-            .navbar {
-                padding: 12px 20px;
-            }
-
-            .navbar-links {
-                display: none;
-            }
-
-            .hero-headline {
-                font-size: 32px;
-            }
-
-            .hero-subheadline {
-                font-size: 16px;
-            }
-
-            .hero-buttons {
-                flex-direction: column;
-                width: 100%;
-                max-width: 280px;
-            }
-
-            .btn-primary, .btn-secondary {
-                width: 100%;
-                text-align: center;
-            }
-
-            .mockup-body {
-                grid-template-columns: 1fr;
-                padding: 16px;
-            }
-
-            .mockup-container {
-                padding: 0 16px 40px;
-            }
-        }
-    </style>
+    @media (max-width: 560px) {
+      .navbar { padding: 12px 18px; }
+      .hero-content { padding-top: 160px; }
+      .hero-headline { font-size: 2.2rem; }
+      .hero-buttons { gap: 12px; }
+      .btn-primary, .btn-secondary { width: 100%; }
+      .mockup-body { padding: 18px; gap: 16px; }
+    }
+  </style>
 </head>
 <body>
-    <!-- Background Grid -->
-    <div class="grid-background">
-        <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
-            <defs>
-                <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
-                    <path d="M 60 0 L 0 0 0 60" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-                </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#grid)" />
-        </svg>
+  <div class="grid-background" aria-hidden="true">
+    <svg viewBox="0 0 1200 1200" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="blueprint-grid" width="80" height="80" patternUnits="userSpaceOnUse">
+          <path d="M80 0H0V80" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1" />
+          <path d="M0 0H80" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1" />
+          <path d="M0 0V80" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1" />
+        </pattern>
+      </defs>
+      <rect width="1200" height="1200" fill="url(#blueprint-grid)" />
+    </svg>
+  </div>
+
+  <canvas class="particles-canvas" id="particles"></canvas>
+
+  <nav class="navbar" aria-label="Primary">
+    <div class="navbar-inner">
+      <a href="#" class="navbar-logo">Engineering Helper</a>
+      <ul class="navbar-links">
+        <li><a href="#calculators">Calculators</a></li>
+        <li><a href="#scheduling">Scheduling</a></li>
+        <li><a href="#projects">Projects</a></li>
+      </ul>
+      <button class="navbar-cta">Start Free</button>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="badge-dot"></span>
+        AI-powered for engineering firms
+      </div>
+      <h1 class="hero-headline">From load calculations to client scheduling — one platform your engineering firm actually uses</h1>
+      <p class="hero-subheadline">Built for structural, civil, and MEP engineers. Live in one day.</p>
+      <div class="hero-buttons">
+        <button class="btn-primary">Start Free</button>
+        <button class="btn-secondary">See it in action</button>
+      </div>
     </div>
 
-    <!-- Particles Canvas -->
-    <canvas class="particles-canvas" id="particles"></canvas>
-
-    <!-- Navbar -->
-    <nav class="navbar">
-        <a href="#" class="navbar-logo">Simpli-Engineering</a>
-        <ul class="navbar-links">
-            <li><a href="#">Calculators</a></li>
-            <li><a href="#">Scheduling</a></li>
-            <li><a href="#">Projects</a></li>
-        </ul>
-        <button class="navbar-cta">Start Free</button>
-    </nav>
-
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="hero-content">
-            <!-- Badge -->
-            <div class="hero-badge">
-                <span class="badge-dot"></span>
-                AI-powered for engineering firms
-            </div>
-
-            <!-- Headline -->
-            <h1 class="hero-headline">
-                From load calculations to client scheduling — one platform your engineering firm actually uses
-            </h1>
-
-            <!-- Subheadline -->
-            <p class="hero-subheadline">
-                Built for structural, civil, and MEP engineers. Live in one day.
-            </p>
-
-            <!-- Buttons -->
-            <div class="hero-buttons">
-                <button class="btn-primary">Start Free</button>
-                <button class="btn-secondary">See it in action</button>
-            </div>
+    <div class="mockup-container" aria-hidden="true">
+      <div class="mockup-glow"></div>
+      <div class="mockup-window">
+        <div class="mockup-header">
+          <span class="mockup-dot"></span>
+          <span class="mockup-dot"></span>
+          <span class="mockup-dot"></span>
+          <div class="mockup-title">Load Calculator</div>
         </div>
-
-        <!-- Mockup Window -->
-        <div class="mockup-container">
-            <div class="mockup-glow"></div>
-            <div class="mockup-window">
-                <div class="mockup-header">
-                    <div class="mockup-dot"></div>
-                    <div class="mockup-dot"></div>
-                    <div class="mockup-dot"></div>
-                    <div class="mockup-title">Load Calculator</div>
-                </div>
-                <div class="mockup-body">
-                    <div class="mockup-section-title">Input Parameters</div>
-                    
-                    <div class="mockup-input-group">
-                        <label class="mockup-label">Span Length (ft)</label>
-                        <input type="text" class="mockup-input" value="24.0" readonly>
-                    </div>
-                    
-                    <div class="mockup-input-group">
-                        <label class="mockup-label">Beam Spacing (ft)</label>
-                        <input type="text" class="mockup-input" value="8.0" readonly>
-                    </div>
-                    
-                    <div class="mockup-input-group">
-                        <label class="mockup-label">Dead Load (psf)</label>
-                        <input type="text" class="mockup-input" value="15.0" readonly>
-                    </div>
-                    
-                    <div class="mockup-input-group">
-                        <label class="mockup-label">Live Load (psf)</label>
-                        <input type="text" class="mockup-input" value="40.0" readonly>
-                    </div>
-
-                    <div class="mockup-section-title" style="margin-top: 8px;">Results</div>
-                    
-                    <div class="result-card">
-                        <span class="result-label">Total Load</span>
-                        <span class="result-value">55 psf</span>
-                    </div>
-                    
-                    <div class="result-card">
-                        <span class="result-label">Dead Load</span>
-                        <span class="result-value" style="font-size: 24px;">75 psf ✓ Pass</span>
-                        <span class="result-status">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12"></polyline>
-                            </svg>
-                            Code Compliant
-                        </span>
-                    </div>
-                </div>
+        <div class="mockup-body">
+          <div>
+            <div class="mockup-section-title">Input Parameters</div>
+            <div class="mockup-input-group">
+              <span class="mockup-label">Span Length</span>
+              <div class="mockup-input">24.0 ft</div>
             </div>
+            <div class="mockup-input-group">
+              <span class="mockup-label">Beam Spacing</span>
+              <div class="mockup-input">8.0 ft</div>
+            </div>
+            <div class="mockup-input-group">
+              <span class="mockup-label">Dead Load</span>
+              <div class="mockup-input">15 psf</div>
+            </div>
+            <div class="mockup-input-group">
+              <span class="mockup-label">Live Load</span>
+              <div class="mockup-input">40 psf</div>
+            </div>
+          </div>
+          <div>
+            <div class="mockup-section-title">Result</div>
+            <div class="result-card">
+              <span class="result-label">Dead Load</span>
+              <span class="result-value">75 psf ✓ Pass</span>
+              <span class="result-status">
+                <svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                Code compliant
+              </span>
+            </div>
+          </div>
         </div>
-    </section>
+      </div>
+    </div>
+  </section>
 
-    <script>
-        // ===== PARTICLE SYSTEM =====
-        const canvas = document.getElementById('particles');
-        const ctx = canvas.getContext('2d');
+  <script>
+    const canvas = document.getElementById('particles');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    const particleCount = 70;
 
-        let particles = [];
-        const particleCount = 60;
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
 
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
+    class Particle {
+      constructor() {
+        this.reset();
+      }
 
-        class Particle {
-            constructor() {
-                this.reset();
-            }
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.radius = Math.random() * 2.2 + 0.8;
+        this.speedX = (Math.random() - 0.5) * 0.25;
+        this.speedY = (Math.random() - 0.5) * 0.25;
+        this.opacity = Math.random() * 0.35 + 0.1;
+        this.phase = Math.random() * Math.PI * 2;
+      }
 
-            reset() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 2 + 0.5;
-                this.speedX = (Math.random() - 0.5) * 0.3;
-                this.speedY = (Math.random() - 0.5) * 0.3;
-                this.opacity = Math.random() * 0.4 + 0.1;
-                this.pulseSpeed = Math.random() * 0.02 + 0.005;
-                this.pulsePhase = Math.random() * Math.PI * 2;
-            }
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        this.phase += 0.03;
+        if (this.x < -20) this.x = canvas.width + 20;
+        if (this.x > canvas.width + 20) this.x = -20;
+        if (this.y < -20) this.y = canvas.height + 20;
+        if (this.y > canvas.height + 20) this.y = -20;
+      }
 
-            update() {
-                this.x += this.speedX;
-                this.y += this.speedY;
-                this.pulsePhase += this.pulseSpeed;
+      draw() {
+        const alpha = this.opacity * (0.7 + 0.3 * Math.sin(this.phase));
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(58, 139, 217, ${alpha})`;
+        ctx.fill();
+      }
+    }
 
-                // Wrap around screen
-                if (this.x < 0) this.x = canvas.width;
-                if (this.x > canvas.width) this.x = 0;
-                if (this.y < 0) this.y = canvas.height;
-                if (this.y > canvas.height) this.y = 0;
-            }
+    function initParticles() {
+      resizeCanvas();
+      particles = [];
+      for (let i = 0; i < particleCount; i++) {
+        particles.push(new Particle());
+      }
+    }
 
-            draw() {
-                const currentOpacity = this.opacity * (0.5 + 0.5 * Math.sin(this.pulsePhase));
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(58, 139, 217, ${currentOpacity})`;
-                ctx.fill();
-            }
-        }
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(particle => {
+        particle.update();
+        particle.draw();
+      });
+      requestAnimationFrame(animateParticles);
+    }
 
-        function initParticles() {
-            resizeCanvas();
-            particles = [];
-            for (let i = 0; i < particleCount; i++) {
-                particles.push(new Particle());
-            }
-        }
+    window.addEventListener('resize', resizeCanvas);
 
-        function animateParticles() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            particles.forEach(particle => {
-                particle.update();
-                particle.draw();
-            });
-
-            requestAnimationFrame(animateParticles);
-        }
-
-        // Initialize
-        window.addEventListener('resize', () => {
-            resizeCanvas();
-        });
-
-        // Check for reduced motion preference
-        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        
-        if (!prefersReducedMotion) {
-            initParticles();
-            animateParticles();
-        }
-    </script>
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      initParticles();
+      animateParticles();
+    } else {
+      canvas.style.display = 'none';
+      document.querySelector('.grid-background').style.animation = 'none';
+    }
+  </script>
 </body>
 </html>
