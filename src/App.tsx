@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
+import WelcomeStartPage from "./components/WelcomeStartPage";
 import Index from "./pages/Index";
 import Pricing from "./pages/Pricing";
 import Login from "./pages/Login";
@@ -58,6 +59,29 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+// Route that shows WelcomeStartPage for new users, dashboard for existing users
+const WelcomeOrDashboardRoute = () => {
+  const { user, loading } = useAuth();
+  const onboardingComplete = typeof window !== "undefined" && localStorage.getItem("onboardingComplete") === "true";
+
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center bg-slate-950"><span className="text-slate-400">Loading…</span></div>;
+  }
+
+  // If user is not logged in, show the welcome start page (marketing landing)
+  if (!user) {
+    return <WelcomeStartPage />;
+  }
+
+  // If user is logged in but hasn't completed onboarding, redirect to onboarding
+  if (!onboardingComplete) {
+    return <Navigate to="/onboarding" replace />;
+  }
+
+  // If user is logged in and has completed onboarding, show dashboard
+  return <Navigate to="/dashboard" replace />;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
@@ -67,8 +91,8 @@ const App = () => (
         <BrowserRouter>
           <TourProvider steps={featureTourSteps}>
             <Routes>
-            {/* Public */}
-            <Route path="/" element={<Index />} />
+            {/* Public - Root shows WelcomeStartPage for new users */}
+            <Route path="/" element={<WelcomeOrDashboardRoute />} />
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
