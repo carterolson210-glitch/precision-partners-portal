@@ -271,7 +271,15 @@ const StructuralDrawingExtractor = ({ projectId, onExtracted }: StructuralDrawin
 
       setFields(updatedFields);
       setAnalysisHint("Review the AI-extracted values. Accept or edit any field before applying them to the calculator.");
-      applyValues();
+
+      const acceptedValues = {
+        slabThickness: updatedFields.find((field) => field.key === "slabThickness")?.editValue || "",
+        unitWeight: updatedFields.find((field) => field.key === "unitWeight")?.editValue || "",
+        superimposedDeadLoad: updatedFields.find((field) => field.key === "superimposedDeadLoad")?.editValue || "",
+        occupancyType: updatedFields.find((field) => field.key === "occupancyType")?.editValue || "",
+        memberSizes: updatedFields.find((field) => field.key === "memberSizes")?.editValue || "",
+      };
+      onExtracted(acceptedValues);
     } catch (error: any) {
       console.error(error);
       toast.error(error?.message || "Failed to extract information from the drawing.");

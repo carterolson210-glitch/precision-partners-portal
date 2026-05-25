@@ -320,7 +320,6 @@ export default function ElectricalLoadCalculator({
             </div>
           </CardContent>
         </Card>
-      </div>
 
       {/* Load Breakdown Table */}
       <Card>

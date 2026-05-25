@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/DashboardLayout";
+import ProjectComplianceChecker from "@/components/ProjectComplianceChecker";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -172,6 +173,7 @@ const ProjectDetail = () => {
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="timeline">Timeline</TabsTrigger>
             <TabsTrigger value="documents">Documents</TabsTrigger>
+            <TabsTrigger value="compliance">Compliance</TabsTrigger>
             <TabsTrigger value="billing">Billing</TabsTrigger>
             <TabsTrigger value="client">Client</TabsTrigger>
           </TabsList>
@@ -209,6 +211,10 @@ const ProjectDetail = () => {
                 Attach plans, contracts, reports, and permit files to keep the project record centralized.
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="compliance">
+            <ProjectComplianceChecker projectId={project.id} />
           </TabsContent>
 
           <TabsContent value="billing">
