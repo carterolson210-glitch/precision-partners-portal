@@ -6,7 +6,8 @@ import DashboardCard from "@/components/DashboardCard";
 import EmptyState from "@/components/EmptyState";
 import LicenseExpirationBanner from "@/components/LicenseExpirationBanner";
 import SubscriptionBadge from "@/components/SubscriptionBadge";
-import { ClipboardList, Bot, Stamp, Gift, Download } from "lucide-react";
+import FreePlanBanner from "@/components/FreePlanBanner";
+import { ClipboardList } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useTour } from "@/components/TourProvider";
 import { supabase } from "@/integrations/supabase/client";
@@ -249,6 +250,7 @@ const DashboardHome = () => {
       )}
 
       <LicenseExpirationBanner />
+      <FreePlanBanner />
       <div className="mb-[var(--card-gap)]">
         <SubscriptionBadge />
       </div>

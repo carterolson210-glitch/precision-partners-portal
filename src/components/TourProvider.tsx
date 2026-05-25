@@ -108,6 +108,11 @@ export const TourProvider = ({ steps, tourId = "feature-tour", children }: TourP
     if (node instanceof HTMLElement) {
       const rect = node.getBoundingClientRect();
       setTargetRect(rect);
+
+      const isVisible = rect.top >= 0 && rect.bottom <= window.innerHeight && rect.left >= 0 && rect.right <= window.innerWidth;
+      if (!isVisible) {
+        node.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
+      }
     } else {
       setTargetRect(null);
     }
@@ -174,29 +179,36 @@ export const TourProvider = ({ steps, tourId = "feature-tour", children }: TourP
     let top = 0;
     let left = 0;
     let transform = "translate(-50%, 0)";
+    const isMobile = window.innerWidth < 640;
 
-    switch (currentStep.placement) {
-      case "top":
-        top = targetRect.top + window.scrollY - offset;
-        left = targetRect.left + window.scrollX + targetRect.width / 2;
-        transform = "translate(-50%, -100%)";
-        break;
-      case "left":
-        top = targetRect.top + window.scrollY + targetRect.height / 2;
-        left = targetRect.left + window.scrollX - offset;
-        transform = "translate(-100%, -50%)";
-        break;
-      case "right":
-        top = targetRect.top + window.scrollY + targetRect.height / 2;
-        left = targetRect.right + window.scrollX + offset;
-        transform = "translate(0, -50%)";
-        break;
-      case "bottom":
-      default:
-        top = targetRect.bottom + window.scrollY + offset;
-        left = targetRect.left + window.scrollX + targetRect.width / 2;
-        transform = "translate(-50%, 0)";
-        break;
+    if (isMobile) {
+      top = window.scrollY + window.innerHeight - 180;
+      left = window.scrollX + window.innerWidth / 2;
+      transform = "translate(-50%, 0)";
+    } else {
+      switch (currentStep.placement) {
+        case "top":
+          top = targetRect.top + window.scrollY - offset;
+          left = targetRect.left + window.scrollX + targetRect.width / 2;
+          transform = "translate(-50%, -100%)";
+          break;
+        case "left":
+          top = targetRect.top + window.scrollY + targetRect.height / 2;
+          left = targetRect.left + window.scrollX - offset;
+          transform = "translate(-100%, -50%)";
+          break;
+        case "right":
+          top = targetRect.top + window.scrollY + targetRect.height / 2;
+          left = targetRect.right + window.scrollX + offset;
+          transform = "translate(0, -50%)";
+          break;
+        case "bottom":
+        default:
+          top = targetRect.bottom + window.scrollY + offset;
+          left = targetRect.left + window.scrollX + targetRect.width / 2;
+          transform = "translate(-50%, 0)";
+          break;
+      }
     }
 
     const maxLeft = window.innerWidth - 24;
@@ -206,7 +218,15 @@ export const TourProvider = ({ steps, tourId = "feature-tour", children }: TourP
     const maxTop = window.innerHeight + window.scrollY - 24;
     top = Math.min(Math.max(top, 24), maxTop);
 
-    return { position: "absolute", top: `${top}px`, left: `${left}px`, transform, maxWidth: 380, zIndex: 2100 };
+    return {
+      position: "absolute",
+      top: `${top}px`,
+      left: `${left}px`,
+      transform,
+      maxWidth: isMobile ? 520 : 380,
+      zIndex: 2100,
+      width: isMobile ? "calc(100% - 48px)" : undefined,
+    } as const;
   }, [currentStep, targetRect]);
 
   const highlightStyles = useMemo(() => {

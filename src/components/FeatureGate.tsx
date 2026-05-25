@@ -27,16 +27,20 @@ const FeatureGate = ({ requiredTier, featureName, children }: FeatureGateProps) 
           <Lock className="w-8 h-8 text-steel" />
         </div>
         <h2 className="font-display font-bold text-[24px] text-body-text">
-          {featureName} Requires an Upgrade
+          {featureName} is available on paid plans
         </h2>
         <p className="text-description max-w-md">
-          This feature is available on{" "}
-          {requiredTier === 2 ? "Growing Firm" : "Enterprise"} plans and above.
-          Upgrade your subscription to unlock it.
+          Your current plan includes the core dashboard tools. Paid plans unlock advanced workflows,
+          higher limits, and dedicated support. You can continue using the free plan without any pressure.
         </p>
-        <Button variant="gold" size="lg" asChild>
-          <Link to="/pricing">View Plans & Upgrade</Link>
-        </Button>
+        <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+          <Button variant="outline" size="lg" asChild>
+            <Link to="/pricing">View paid plans</Link>
+          </Button>
+          <Button variant="secondary" size="lg" asChild>
+            <Link to="/dashboard">Return to Dashboard</Link>
+          </Button>
+        </div>
       </div>
     );
   }

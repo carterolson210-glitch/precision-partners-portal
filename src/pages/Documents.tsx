@@ -229,8 +229,8 @@ const Documents = () => {
         <DialogContent>
           <DialogHeader><DialogTitle>Send for E-Signature</DialogTitle></DialogHeader>
           <div className="space-y-4">
-            <div><Label>Signer Name</Label><Input value={signerName} onChange={e => setSignerName(e.target.value)} placeholder="Jane Smith" /></div>
-            <div><Label>Signer Email</Label><Input type="email" value={signerEmail} onChange={e => setSignerEmail(e.target.value)} placeholder="jane@example.com" /></div>
+            <div><Label>Signer Name</Label><Input value={signerName} onChange={e => setSignerName(e.target.value)} placeholder="Enter signer name" /></div>
+            <div><Label>Signer Email</Label><Input type="email" value={signerEmail} onChange={e => setSignerEmail(e.target.value)} placeholder="Enter signer email" /></div>
             <Button onClick={handleSendForSignature} disabled={sendingSign || !signerName || !signerEmail} className="w-full bg-navy text-primary-foreground hover:bg-navy/90">
               {sendingSign ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Sending…</> : "Send Signing Request"}
             </Button>

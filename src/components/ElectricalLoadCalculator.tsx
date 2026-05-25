@@ -10,12 +10,12 @@ import { toast } from "sonner";
 import StructuralDrawingExtractor from "@/components/StructuralDrawingExtractor";
 
 interface ElectricalLoadInputs {
-  squareFootage: number;
-  numberOfFloors: number;
-  hvacUnits: number;
-  lightingCircuits: number;
-  outlets: number;
-  appliances: number;
+  squareFootage: string;
+  numberOfFloors: string;
+  hvacUnits: string;
+  lightingCircuits: string;
+  outlets: string;
+  appliances: string;
 }
 
 interface LoadBreakdown {
@@ -34,19 +34,19 @@ export default function ElectricalLoadCalculator({
 }) {
   const { user } = useAuth();
   const [inputs, setInputs] = useState<ElectricalLoadInputs>({
-    squareFootage: 2000,
-    numberOfFloors: 1,
-    hvacUnits: 2,
-    lightingCircuits: 10,
-    outlets: 20,
-    appliances: 5,
+    squareFootage: "",
+    numberOfFloors: "",
+    hvacUnits: "",
+    lightingCircuits: "",
+    outlets: "",
+    appliances: "",
   });
   const [structuralInputs, setStructuralInputs] = useState({
-    slabThickness: "6 in",
-    unitWeight: "150 pcf",
-    superimposedDeadLoad: "10 psf",
-    occupancyType: "Office",
-    memberSizes: "W12x40 beams, 8x8 columns",
+    slabThickness: "",
+    unitWeight: "",
+    superimposedDeadLoad: "",
+    occupancyType: "",
+    memberSizes: "",
   });
   const [loading, setLoading] = useState(false);
 
@@ -78,16 +78,24 @@ export default function ElectricalLoadCalculator({
     return slabDepthFeet * unitWeight + superLoad;
   }, [structuralInputs]);
 
+  const parseInputValue = (value: string) => {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : 0;
+  };
+
   // Calculate loads based on NEC requirements
   const loadBreakdown = useMemo((): LoadBreakdown[] => {
-    const sqFt = inputs.squareFootage;
-    const floors = inputs.numberOfFloors;
+    const sqFt = parseInputValue(inputs.squareFootage);
+    const floors = parseInputValue(inputs.numberOfFloors);
+    const hvacUnits = parseInputValue(inputs.hvacUnits);
+    const appliances = parseInputValue(inputs.appliances);
+    const outlets = parseInputValue(inputs.outlets);
 
     return [
       {
         category: "General Lighting",
         description: `${sqFt} sq ft @ 3 VA/sq ft`,
-        amps: (sqFt * 3) / 120, // 3 VA per sq ft at 120V
+        amps: (sqFt * 3) / 120,
         kw: (sqFt * 3) / 1000,
       },
       {
@@ -104,33 +112,33 @@ export default function ElectricalLoadCalculator({
       },
       {
         category: "Range",
-        description: `${inputs.appliances} appliance(s) @ 8000 VA each`,
-        amps: (inputs.appliances * 8000) / 240,
-        kw: (inputs.appliances * 8000) / 1000,
+        description: `${appliances} appliance(s) @ 8000 VA each`,
+        amps: (appliances * 8000) / 240,
+        kw: (appliances * 8000) / 1000,
       },
       {
         category: "Dryer",
-        description: `${inputs.appliances} appliance(s) @ 5500 VA each`,
-        amps: (inputs.appliances * 5500) / 240,
-        kw: (inputs.appliances * 5500) / 1000,
+        description: `${appliances} appliance(s) @ 5500 VA each`,
+        amps: (appliances * 5500) / 240,
+        kw: (appliances * 5500) / 1000,
       },
       {
         category: "Water Heater",
-        description: `${inputs.appliances} appliance(s) @ 4500 VA each`,
-        amps: (inputs.appliances * 4500) / 240,
-        kw: (inputs.appliances * 4500) / 1000,
+        description: `${appliances} appliance(s) @ 4500 VA each`,
+        amps: (appliances * 4500) / 240,
+        kw: (appliances * 4500) / 1000,
       },
       {
         category: "HVAC",
-        description: `${inputs.hvacUnits} unit(s) @ 5000 VA each`,
-        amps: (inputs.hvacUnits * 5000) / 240,
-        kw: (inputs.hvacUnits * 5000) / 1000,
+        description: `${hvacUnits} unit(s) @ 5000 VA each`,
+        amps: (hvacUnits * 5000) / 240,
+        kw: (hvacUnits * 5000) / 1000,
       },
       {
         category: "Receptacle Loads",
-        description: `${inputs.outlets} outlet(s) @ 180 VA each`,
-        amps: (inputs.outlets * 180) / 120,
-        kw: (inputs.outlets * 180) / 1000,
+        description: `${outlets} outlet(s) @ 180 VA each`,
+        amps: (outlets * 180) / 120,
+        kw: (outlets * 180) / 1000,
       },
     ];
   }, [inputs]);
@@ -141,7 +149,12 @@ export default function ElectricalLoadCalculator({
     return { totalAmps, totalKw };
   }, [loadBreakdown]);
 
-  const handleInputChange = (field: keyof ElectricalLoadInputs, value: number) => {
+  const hasInputValues = useMemo(
+    () => Object.values(inputs).some((value) => Number(value) > 0),
+    [inputs],
+  );
+
+  const handleInputChange = (field: keyof ElectricalLoadInputs, value: string) => {
     setInputs(prev => ({ ...prev, [field]: value }));
   };
 
@@ -233,8 +246,9 @@ export default function ElectricalLoadCalculator({
                   id="squareFootage"
                   type="number"
                   min="1"
+                  placeholder="Enter square footage"
                   value={inputs.squareFootage}
-                  onChange={(e) => handleInputChange("squareFootage", Number(e.target.value))}
+                  onChange={(e) => handleInputChange("squareFootage", e.target.value)}
                 />
               </div>
               <div className="space-y-2">
@@ -243,8 +257,9 @@ export default function ElectricalLoadCalculator({
                   id="numberOfFloors"
                   type="number"
                   min="1"
+                  placeholder="Enter number of floors"
                   value={inputs.numberOfFloors}
-                  onChange={(e) => handleInputChange("numberOfFloors", Number(e.target.value))}
+                  onChange={(e) => handleInputChange("numberOfFloors", e.target.value)}
                 />
               </div>
             </div>
@@ -256,8 +271,9 @@ export default function ElectricalLoadCalculator({
                   id="hvacUnits"
                   type="number"
                   min="0"
+                  placeholder="Enter HVAC unit count"
                   value={inputs.hvacUnits}
-                  onChange={(e) => handleInputChange("hvacUnits", Number(e.target.value))}
+                  onChange={(e) => handleInputChange("hvacUnits", e.target.value)}
                 />
               </div>
               <div className="space-y-2">
@@ -266,8 +282,9 @@ export default function ElectricalLoadCalculator({
                   id="lightingCircuits"
                   type="number"
                   min="0"
+                  placeholder="Enter circuit count"
                   value={inputs.lightingCircuits}
-                  onChange={(e) => handleInputChange("lightingCircuits", Number(e.target.value))}
+                  onChange={(e) => handleInputChange("lightingCircuits", e.target.value)}
                 />
               </div>
             </div>
@@ -279,8 +296,9 @@ export default function ElectricalLoadCalculator({
                   id="outlets"
                   type="number"
                   min="0"
+                  placeholder="Enter outlet count"
                   value={inputs.outlets}
-                  onChange={(e) => handleInputChange("outlets", Number(e.target.value))}
+                  onChange={(e) => handleInputChange("outlets", e.target.value)}
                 />
               </div>
               <div className="space-y-2">
@@ -289,8 +307,9 @@ export default function ElectricalLoadCalculator({
                   id="appliances"
                   type="number"
                   min="0"
+                  placeholder="Enter appliance count"
                   value={inputs.appliances}
-                  onChange={(e) => handleInputChange("appliances", Number(e.target.value))}
+                  onChange={(e) => handleInputChange("appliances", e.target.value)}
                 />
               </div>
             </div>
@@ -306,16 +325,22 @@ export default function ElectricalLoadCalculator({
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="rounded-lg border p-4 text-center">
                 <p className="text-sm text-muted-foreground">Total Amperage</p>
-                <p className="text-2xl font-bold text-primary">{totals.totalAmps.toFixed(1)} A</p>
+                <p className="text-2xl font-bold text-primary">
+                  {hasInputValues ? `${totals.totalAmps.toFixed(1)} A` : "Awaiting input"}
+                </p>
               </div>
               <div className="rounded-lg border p-4 text-center">
                 <p className="text-sm text-muted-foreground">Total Kilowatts</p>
-                <p className="text-2xl font-bold text-primary">{totals.totalKw.toFixed(1)} kW</p>
+                <p className="text-2xl font-bold text-primary">
+                  {hasInputValues ? `${totals.totalKw.toFixed(1)} kW` : "Awaiting input"}
+                </p>
               </div>
             </div>
             <div className="mt-4 p-3 bg-muted rounded-lg">
               <p className="text-sm text-muted-foreground">
-                Recommended Service: {Math.ceil(totals.totalAmps / 100) * 100}A / {Math.ceil(totals.totalKw / 10) * 10}kW
+                {hasInputValues
+                  ? `Recommended Service: ${Math.ceil(totals.totalAmps / 100) * 100}A / ${Math.ceil(totals.totalKw / 10) * 10}kW`
+                  : "Enter building details to reveal recommended service sizing."}
               </p>
             </div>
           </CardContent>

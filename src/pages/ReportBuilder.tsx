@@ -282,7 +282,7 @@ This report is structured for internal review and stakeholder communication. Use
                           id="engineerName"
                           value={engineerName}
                           onChange={(event) => setEngineerName(event.target.value)}
-                          placeholder="e.g. Jordan Lee, PE"
+                          placeholder="Enter engineer name"
                         />
                       </div>
                       <div>

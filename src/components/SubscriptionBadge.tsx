@@ -28,16 +28,16 @@ const SubscriptionBadge = () => {
 
   if (!subscription.subscribed) {
     return (
-      <div className="bg-section-alt border border-card-border rounded-lg p-4 flex items-center justify-between">
+      <div className="bg-section-alt border border-card-border rounded-lg p-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <Crown className="w-5 h-5 text-gold" />
           <div>
             <p className="text-[14px] font-medium text-body-text">Free Plan</p>
-            <p className="text-[12px] text-description">Upgrade to unlock all features</p>
+            <p className="text-[12px] text-description">Core tools remain available. Paid plans unlock additional advanced workflows.</p>
           </div>
         </div>
-        <Button variant="gold" size="sm" asChild>
-          <Link to="/pricing">Upgrade</Link>
+        <Button variant="outline" size="sm" asChild>
+          <Link to="/pricing">View plans</Link>
         </Button>
       </div>
     );
