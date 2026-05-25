@@ -137,17 +137,23 @@ const StructuralDrawingExtractor = ({ projectId, onExtracted }: StructuralDrawin
   }, [pdfDocument, currentPage]);
 
   useEffect(() => {
+    const pageItems = pageTextItems[currentPage];
+    if (!pageItems || !pageDimensions.width || !pageDimensions.height) {
+      setHighlightBoxes([]);
+      return;
+    }
+
     const updated = fields.flatMap((field) => {
-      if (!pageTextItems[1] || !field.value) return [];
-      const hits = findTextItems(pageTextItems[1], field.value);
-      return hits.slice(0, 1).map((item) => {
-        const [a, b, c, d, x, y] = item.transform || [];
+      if (!field.value) return [];
+      const hits = findTextItems(pageItems, field.value);
+      return hits.slice(0, 2).map((item) => {
+        const [, , , , x = 0, y = 0] = item.transform || [];
         const width = item.width || 60;
         const height = item.height || 12;
-        const top = pageDimensions.height - y;
+        const top = pageDimensions.height - y - height;
         return {
           fieldKey: field.key,
-          page: 1,
+          page: currentPage,
           left: x,
           top,
           width,
@@ -155,8 +161,9 @@ const StructuralDrawingExtractor = ({ projectId, onExtracted }: StructuralDrawin
         };
       });
     });
+
     setHighlightBoxes(updated);
-  }, [fields, pageTextItems, pageDimensions]);
+  }, [fields, pageTextItems, pageDimensions, currentPage]);
 
   const updateField = (key: ExtractionKey, value: string) => {
     setFields((current) =>
@@ -325,9 +332,16 @@ const StructuralDrawingExtractor = ({ projectId, onExtracted }: StructuralDrawin
                       <p className="text-sm font-semibold">{field.label}</p>
                       <p className="text-xs text-muted-foreground">{field.note}</p>
                     </div>
-                    <Badge variant={field.confidence >= 0.75 ? "secondary" : field.confidence >= 0.4 ? "outline" : "destructive"}>
-                      {field.confidence ? `${Math.round(field.confidence * 100)}% confident` : "Review"}
-                    </Badge>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Badge variant={field.confidence >= 0.75 ? "secondary" : field.confidence >= 0.4 ? "outline" : "destructive"}>
+                        {field.confidence ? `${Math.round(field.confidence * 100)}% confident` : "Review"}
+                      </Badge>
+                      {field.status !== "pending" && (
+                        <Badge variant={field.status === "accepted" ? "secondary" : "destructive"}>
+                          {field.status === "accepted" ? "Accepted" : "Rejected"}
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                   <div className="mt-3 grid gap-3 sm:grid-cols-[1fr_auto]">
                     <Input
@@ -367,18 +381,25 @@ const StructuralDrawingExtractor = ({ projectId, onExtracted }: StructuralDrawin
               </div>
               <div className="relative overflow-hidden rounded-3xl border border-border bg-slate-950/90" style={{ minHeight: 320 }}>
                 <canvas ref={canvasRef} className="w-full h-auto" aria-label="Drawing preview" />
-                {highlightBoxes.map((box, index) => (
-                  <div
-                    key={`${box.fieldKey}-${index}`}
-                    className="pointer-events-none absolute border-2 border-amber-400/80 bg-amber-400/10"
-                    style={{
-                      left: `${box.left * displayScale}px`,
-                      top: `${box.top * displayScale}px`,
-                      width: `${box.width * displayScale}px`,
-                      height: `${box.height * displayScale}px`,
-                    }}
-                  />
-                ))}
+                {highlightBoxes.map((box, index) => {
+                  const fieldLabel = fields.find((field) => field.key === box.fieldKey)?.label || box.fieldKey;
+                  return (
+                    <div
+                      key={`${box.fieldKey}-${index}`}
+                      className="pointer-events-none absolute border-2 border-amber-400/80 bg-amber-400/10"
+                      style={{
+                        left: `${box.left * displayScale}px`,
+                        top: `${box.top * displayScale}px`,
+                        width: `${box.width * displayScale}px`,
+                        height: `${box.height * displayScale}px`,
+                      }}
+                    >
+                      <div className="absolute left-0 top-0 -translate-y-full rounded-full bg-amber-400/90 px-2 py-1 text-[11px] font-semibold text-white shadow-sm">
+                        {fieldLabel}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>

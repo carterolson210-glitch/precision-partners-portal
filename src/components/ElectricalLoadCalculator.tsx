@@ -189,7 +189,7 @@ export default function ElectricalLoadCalculator({
 
   return (
     <div className="space-y-6">
-      <StructuralDrawingExtractor onExtracted={handleDrawingExtraction} />
+      <StructuralDrawingExtractor projectId={projectId} onExtracted={handleDrawingExtraction} />
       <Card>
         <CardHeader>
           <CardTitle>Structural Load Summary</CardTitle>

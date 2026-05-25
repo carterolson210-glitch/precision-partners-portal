@@ -56,9 +56,9 @@ const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
   const userInitial = user?.user_metadata?.full_name?.[0] || user?.email?.[0]?.toUpperCase() || "?";
 
   return (
-    <div className="min-h-screen bg-section-alt">
+    <div className="min-h-screen bg-section-alt page-shell">
       {/* Top Nav */}
-      <header id="tour-top-nav" className="fixed top-0 left-0 right-0 h-[var(--nav-height)] bg-background border-b border-card-border z-[1000] flex items-center">
+      <header id="tour-top-nav" className="fixed top-0 left-0 right-0 h-[var(--nav-height)] bg-white/95 backdrop-blur-xl border-b border-card-border z-[1000] flex items-center shadow-sm transition-shadow duration-300">
         <div className="flex items-center justify-between w-full px-4">
           <div className="flex items-center gap-3">
             <button
@@ -114,7 +114,7 @@ const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-[var(--nav-height)] left-0 bottom-0 w-[260px] bg-background border-r border-card-border z-[1002] overflow-y-auto transition-transform duration-300 ${
+        className={`fixed top-[var(--nav-height)] left-0 bottom-0 w-[260px] bg-background border-r border-card-border z-[1002] overflow-y-auto transition-transform duration-300 shadow-xl ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         } lg:translate-x-0`}
       >
@@ -153,9 +153,9 @@ const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
       </aside>
 
       {/* Main Content */}
-      <main className="lg:ml-[260px] pt-[calc(var(--nav-height)+16px)] min-h-screen">
-        <div className="max-w-[1200px] mx-auto px-4 lg:px-6 pb-16">
-          <h1 className="text-[32px] font-bold text-body-text font-display mb-6">{title}</h1>
+      <main className="lg:ml-[260px] pt-[calc(var(--nav-height)+20px)] min-h-screen">
+        <div className="page-transition-content max-w-[1200px] mx-auto px-4 lg:px-6 pb-16">
+          <h1 className="text-[32px] font-bold text-body-text font-display mb-6 tracking-tight">{title}</h1>
           {children}
         </div>
       </main>

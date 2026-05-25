@@ -94,6 +94,54 @@
   p {
     line-height: 1.7;
   }
+
+  .page-transition-wrapper {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fade-in-up 320ms ease-out forwards;
+  }
+
+  .page-transition-content {
+    transform: translateZ(0);
+  }
+
+  button {
+    will-change: transform, filter;
+  }
+
+  input,
+  textarea,
+  select {
+    transition: border-color 220ms ease, box-shadow 220ms ease, transform 220ms ease;
+  }
+
+  input:focus,
+  textarea:focus,
+  select:focus {
+    box-shadow: 0 0 0 4px rgba(43, 125, 255, 0.14);
+  }
+
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 @layer components {
@@ -132,10 +180,11 @@
 
   .dashboard-heading {
     font-size: 20px;
-    font-weight: 600;
+    font-weight: 700;
+    letter-spacing: 0.01em;
     color: hsl(var(--body-text));
-    border-left: 2px solid hsl(var(--gold));
-    padding-left: 12px;
+    border-left: 3px solid hsl(var(--gold));
+    padding-left: 14px;
   }
 
   .card-title {

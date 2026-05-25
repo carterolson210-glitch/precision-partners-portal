@@ -59,6 +59,57 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+const RoutesWithTransitions = () => {
+  const location = useLocation();
+
+  return (
+    <div key={location.pathname} className="page-transition-wrapper">
+      <Routes location={location}>
+        {/* Public - Root shows WelcomeStartPage for new users */}
+        <Route path="/" element={<WelcomeOrDashboardRoute />} />
+        <Route path="/pricing" element={<Pricing />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/free-estimator" element={<FreeEstimator />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/sign" element={<SignDocument />} />
+        <Route path="/templates" element={<Templates />} />
+        <Route path="/templates/:slug" element={<TemplateDetail />} />
+        <Route path="/features" element={<Features />} />
+        <Route path="/how-it-works" element={<HowItWorks />} />
+        <Route path="/security" element={<Security />} />
+
+        {/* Dashboard (protected) */}
+        <Route path="/dashboard" element={<ProtectedRoute><DashboardHome /></ProtectedRoute>} />
+        <Route path="/dashboard/estimator" element={<ProtectedRoute><Estimator /></ProtectedRoute>} />
+        <Route path="/dashboard/calculator" element={<ProtectedRoute><LoadCalculator /></ProtectedRoute>} />
+        <Route path="/dashboard/scheduling" element={<ProtectedRoute><Scheduling /></ProtectedRoute>} />
+        <Route path="/dashboard/clients" element={<ProtectedRoute><Clients /></ProtectedRoute>} />
+        <Route path="/dashboard/clients/:clientId" element={<ProtectedRoute><ClientDetail /></ProtectedRoute>} />
+        <Route path="/dashboard/projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
+        <Route path="/dashboard/projects/:projectId" element={<ProtectedRoute><ProjectDetail /></ProtectedRoute>} />
+        <Route path="/dashboard/documents" element={<ProtectedRoute><Documents /></ProtectedRoute>} />
+        <Route path="/dashboard/invoicing" element={<ProtectedRoute><Invoicing /></ProtectedRoute>} />
+        <Route path="/dashboard/proposals" element={<ProtectedRoute><Proposals /></ProtectedRoute>} />
+        <Route path="/dashboard/codes" element={<ProtectedRoute><CodeLibrary /></ProtectedRoute>} />
+        <Route path="/dashboard/team" element={<ProtectedRoute><TeamWorkspace /></ProtectedRoute>} />
+        <Route path="/dashboard/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
+        <Route path="/dashboard/referrals" element={<ProtectedRoute><Referrals /></ProtectedRoute>} />
+        <Route path="/dashboard/downloads" element={<ProtectedRoute><Downloads /></ProtectedRoute>} />
+        <Route path="/dashboard/copilot" element={<ProtectedRoute><EngineeringCopilot /></ProtectedRoute>} />
+        <Route path="/dashboard/reports" element={<ProtectedRoute><ReportBuilder /></ProtectedRoute>} />
+        <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
+        <Route path="/dashboard/pe-stamps" element={<ProtectedRoute><PEStampManager /></ProtectedRoute>} />
+        <Route path="/dashboard/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </div>
+  );
+};
+
 // Route that shows WelcomeStartPage for new users, dashboard for existing users
 const WelcomeOrDashboardRoute = () => {
   const { user, loading } = useAuth();
@@ -90,48 +141,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <TourProvider steps={featureTourSteps}>
-            <Routes>
-            {/* Public - Root shows WelcomeStartPage for new users */}
-            <Route path="/" element={<WelcomeOrDashboardRoute />} />
-            <Route path="/pricing" element={<Pricing />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/free-estimator" element={<FreeEstimator />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/sign" element={<SignDocument />} />
-            <Route path="/templates" element={<Templates />} />
-            <Route path="/templates/:slug" element={<TemplateDetail />} />
-            <Route path="/features" element={<Features />} />
-            <Route path="/how-it-works" element={<HowItWorks />} />
-            <Route path="/security" element={<Security />} />
-
-            {/* Dashboard (protected) */}
-            <Route path="/dashboard" element={<ProtectedRoute><DashboardHome /></ProtectedRoute>} />
-            <Route path="/dashboard/estimator" element={<ProtectedRoute><Estimator /></ProtectedRoute>} />
-            <Route path="/dashboard/calculator" element={<ProtectedRoute><LoadCalculator /></ProtectedRoute>} />
-            <Route path="/dashboard/scheduling" element={<ProtectedRoute><Scheduling /></ProtectedRoute>} />
-            <Route path="/dashboard/clients" element={<ProtectedRoute><Clients /></ProtectedRoute>} />
-            <Route path="/dashboard/clients/:clientId" element={<ProtectedRoute><ClientDetail /></ProtectedRoute>} />
-            <Route path="/dashboard/projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
-            <Route path="/dashboard/projects/:projectId" element={<ProtectedRoute><ProjectDetail /></ProtectedRoute>} />
-            <Route path="/dashboard/documents" element={<ProtectedRoute><Documents /></ProtectedRoute>} />
-            <Route path="/dashboard/invoicing" element={<ProtectedRoute><Invoicing /></ProtectedRoute>} />
-            <Route path="/dashboard/proposals" element={<ProtectedRoute><Proposals /></ProtectedRoute>} />
-            <Route path="/dashboard/codes" element={<ProtectedRoute><CodeLibrary /></ProtectedRoute>} />
-            <Route path="/dashboard/team" element={<ProtectedRoute><TeamWorkspace /></ProtectedRoute>} />
-            <Route path="/dashboard/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
-            <Route path="/dashboard/referrals" element={<ProtectedRoute><Referrals /></ProtectedRoute>} />
-            <Route path="/dashboard/downloads" element={<ProtectedRoute><Downloads /></ProtectedRoute>} />
-            <Route path="/dashboard/copilot" element={<ProtectedRoute><EngineeringCopilot /></ProtectedRoute>} />
-            <Route path="/dashboard/reports" element={<ProtectedRoute><ReportBuilder /></ProtectedRoute>} />
-            <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
-            <Route path="/auth/callback" element={<AuthCallback />} />
-            <Route path="/dashboard/pe-stamps" element={<ProtectedRoute><PEStampManager /></ProtectedRoute>} />
-            <Route path="/dashboard/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+            <RoutesWithTransitions />
           </TourProvider>
         </BrowserRouter>
       </TooltipProvider>
