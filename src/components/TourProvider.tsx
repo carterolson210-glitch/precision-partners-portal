@@ -180,6 +180,7 @@ export const TourProvider = ({ steps, tourId = "feature-tour", children }: TourP
     let left = 0;
     let transform = "translate(-50%, 0)";
     const isMobile = window.innerWidth < 640;
+    const tooltipWidth = isMobile ? window.innerWidth - 48 : 380;
 
     if (isMobile) {
       top = window.scrollY + window.innerHeight - 180;
@@ -211,9 +212,21 @@ export const TourProvider = ({ steps, tourId = "feature-tour", children }: TourP
       }
     }
 
-    const maxLeft = window.innerWidth - 24;
-    const minLeft = 24;
-    left = Math.min(Math.max(left, minLeft), maxLeft);
+    if (!isMobile) {
+      if (currentStep.placement === "left") {
+        const minLeft = tooltipWidth + 24;
+        const maxLeft = window.innerWidth - 24;
+        left = Math.min(Math.max(left, minLeft), maxLeft);
+      } else if (currentStep.placement === "right") {
+        const minLeft = 24;
+        const maxLeft = window.innerWidth - tooltipWidth - 24;
+        left = Math.min(Math.max(left, minLeft), maxLeft);
+      } else {
+        const minLeft = tooltipWidth / 2 + 24;
+        const maxLeft = window.innerWidth - tooltipWidth / 2 - 24;
+        left = Math.min(Math.max(left, minLeft), maxLeft);
+      }
+    }
 
     const maxTop = window.innerHeight + window.scrollY - 24;
     top = Math.min(Math.max(top, 24), maxTop);
@@ -223,9 +236,9 @@ export const TourProvider = ({ steps, tourId = "feature-tour", children }: TourP
       top: `${top}px`,
       left: `${left}px`,
       transform,
-      maxWidth: isMobile ? 520 : 380,
+      maxWidth: tooltipWidth,
       zIndex: 2100,
-      width: isMobile ? "calc(100% - 48px)" : undefined,
+      width: isMobile ? "calc(100% - 48px)" : `${tooltipWidth}px`,
     } as const;
   }, [currentStep, targetRect]);
 
