@@ -172,7 +172,15 @@ export const TourProvider = ({ steps, tourId = "feature-tour", children }: TourP
 
   const tooltipStyles = useMemo(() => {
     if (!targetRect || !currentStep) {
-      return { top: "50%", left: "50%", transform: "translate(-50%, -50%)", maxWidth: 380 };
+      return {
+        position: "absolute",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        maxWidth: 380,
+        zIndex: 2100,
+        width: isMobile ? "calc(100% - 48px)" : "380px",
+      } as const;
     }
 
     const offset = 18;
